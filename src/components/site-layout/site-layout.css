@@ -1,0 +1,15 @@
+html .dark-theme-button {
+    display: none;
+}
+
+html .light-theme-button {
+    display: block;
+}
+
+html.dark .dark-theme-button {
+    display: block;
+}
+
+html.dark .light-theme-button {
+    display: none;
+}
