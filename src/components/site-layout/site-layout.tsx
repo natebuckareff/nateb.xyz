@@ -51,7 +51,12 @@ const Nav = () => {
             <div class="sm:ml-auto flex flex-wrap gap-2">
                 <ul class="flex items-center gap-4">
                     <li class={iconItemStyle()}>
-                        <a class={linkItemStyle()} href="https://github.com/natebuckareff">
+                        <a
+                            class={linkItemStyle()}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            href="https://github.com/natebuckareff"
+                        >
                             <GithubIcon class="w-5 h-5" />
                         </a>
                     </li>
@@ -59,6 +64,8 @@ const Nav = () => {
                     <li class={iconItemStyle()}>
                         <a
                             class={linkItemStyle()}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             href="https://www.linkedin.com/in/nate-buckareff-08b527144/"
                         >
                             <LinkedinIcon class="w-5 h-5" />
@@ -66,7 +73,12 @@ const Nav = () => {
                     </li>
 
                     <li class={iconItemStyle()}>
-                        <a class={linkItemStyle()} href="https://twitter.com/anynate">
+                        <a
+                            class={linkItemStyle()}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            href="https://twitter.com/anynate"
+                        >
                             <TwitterIcon class="w-5 h-5" />
                         </a>
                     </li>

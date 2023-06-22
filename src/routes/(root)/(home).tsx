@@ -89,7 +89,7 @@ const ProjectCard = (props: { href: string; title: string; content: string; star
         'border-transparent border-2 hover:border-slate-300 dark:hover:border-slate-500',
     ]);
     return (
-        <a href={props.href} class={linkStyle()}>
+        <a href={props.href} class={linkStyle()} target="_blank" rel="noopener noreferrer">
             <h4 class="flex items-center gap-2 text-lg">
                 <TypeScriptIcon class="w-5 h-5" />
 
