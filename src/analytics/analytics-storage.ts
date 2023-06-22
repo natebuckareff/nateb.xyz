@@ -1,5 +1,6 @@
 import type { Database, Statement, Transaction } from 'better-sqlite3';
 import BetterSqlite3 from 'better-sqlite3';
+import fs from 'node:fs';
 import { AnalyticsEvent } from './analytics-event';
 
 export interface AnalyticsStorageConfig {
@@ -13,6 +14,9 @@ export class AnalyticsStorage {
     private _insertManyEvents!: Transaction<(events: AnalyticsEvent[]) => void>;
 
     constructor(public readonly config: AnalyticsStorageConfig) {
+        if (!fs.existsSync(config.filename)) {
+            throw Error('database filename not found: ' + config.filename);
+        }
         this._db = BetterSqlite3(config.filename);
         this._db.pragma('journal_mode = WAL');
         this._setup();

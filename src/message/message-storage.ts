@@ -1,5 +1,6 @@
 import type { Database, Statement } from 'better-sqlite3';
 import BetterSqlite3 from 'better-sqlite3';
+import fs from 'node:fs';
 
 export interface MessageStorageConfig {
     filename: string;
@@ -11,6 +12,9 @@ export class MessageStorage {
     private _insertMessage!: Statement<InsertMessageParams>;
 
     constructor(public readonly config: MessageStorageConfig) {
+        if (!fs.existsSync(config.filename)) {
+            throw Error('database filename not found: ' + config.filename);
+        }
         this._db = BetterSqlite3(config.filename);
         this._db.pragma('journal_mode = WAL');
         this._setup();
