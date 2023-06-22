@@ -10,8 +10,8 @@ export class AnalyticsClient {
     private _request: string;
     private _page?: string;
     private _scrollState: number | undefined;
+    private _timeout: NodeJS.Timeout | undefined;
     private _events: AnalyticsEvent[];
-    private _blurTime: number;
 
     private _handleScroll: () => void;
     private _handleWindowBlur: () => void;
@@ -20,7 +20,8 @@ export class AnalyticsClient {
     constructor(request: string, public readonly config: AnalyticsClientConfig) {
         this._request = request;
         this._events = [];
-        this._blurTime = 0;
+
+        this._setTimeout();
 
         this._handleScroll = () => this._scroll();
         this._handleWindowBlur = () => this.pageBlur();
@@ -29,6 +30,16 @@ export class AnalyticsClient {
         window.addEventListener('scroll', this._handleScroll);
         window.addEventListener('blur', this._handleWindowBlur);
         window.addEventListener('focus', this._handleWindowFocus);
+    }
+
+    private _setTimeout() {
+        if (this._timeout) clearTimeout(this._timeout);
+        this._timeout = setTimeout(() => this._handleTimeout(), this.config.updateFreq);
+    }
+
+    private _handleTimeout() {
+        this._setTimeout();
+        this._send();
     }
 
     private _scroll() {
@@ -58,6 +69,11 @@ export class AnalyticsClient {
 
     get scrollThreshold(): number {
         return this.config.scrollThreshold ?? 0.05;
+    }
+
+    get blurTime(): number {
+        const last = this._events[this._events.length - 1];
+        return last?.type === 'PAGE_BLUR' ? Date.now() - last.time : 0;
     }
 
     cleanup() {
@@ -110,19 +126,17 @@ export class AnalyticsClient {
 
     pageFocus(): void {
         if (!this._page) throw Error('page id not set');
-        const time = Date.now();
         this._emit({
             type: 'PAGE_FOCUS',
-            time,
+            time: Date.now(),
             page: this._page,
-            elapsed: time - this._blurTime,
+            elapsed: this.blurTime,
         });
     }
 
     pageBlur(): void {
         if (!this._page) throw Error('page id not set');
         const time = Date.now();
-        this._blurTime = time;
         this._emit({
             type: 'PAGE_BLUR',
             time,

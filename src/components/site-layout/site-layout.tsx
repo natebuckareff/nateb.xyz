@@ -4,6 +4,7 @@ import { A, useLocation } from 'solid-start';
 import { env } from '~/env';
 import useDarkMode from '~/hooks/use-dark-mode';
 import GithubIcon from '../icons/github-icon';
+import { LinkedinIcon } from '../icons/linkedin-icon';
 import { MessageIcon } from '../icons/message-icon';
 import MoonIcon from '../icons/moon-icon';
 import SunIcon from '../icons/sun-icon';
@@ -19,7 +20,9 @@ export default function SiteLayout(props: SiteLayoutProps) {
         <div class="dark:bg-slate-900 dark:text-slate-200">
             <div class="flex flex-col min-h-screen mx-auto max-w-6xl">
                 <Nav />
-                <div class="flex flex-col gap-8 pt-8 p-4 py-0 sm:p-10">{props.children}</div>
+                <div class="flex flex-col w-full mx-auto max-w-3xl gap-8 pt-4 sm:pt-8 p-4 py-0 sm:p-10">
+                    {props.children}
+                </div>
                 <Footer />
             </div>
         </div>
@@ -40,35 +43,42 @@ const Nav = () => {
         },
     });
 
-    const iconItemStyle = cva(['flex flex-col items-center']);
+    const iconItemStyle = cva(['flex flex-col items-center text-gray-500 hover:text-black']);
     const linkItemStyle = cva(['inline-block hover:bg-gray-200 p-1 rounded-md']);
 
     return (
         <nav class="flex p-4 sm:p-4 sm:pt-8 sm:px-10">
             <div class="sm:ml-auto flex flex-wrap gap-2">
-                <Show when={location.pathname === '/'}>
-                    <ul class="flex items-center gap-4">
-                        <li class={iconItemStyle()}>
-                            <a class={linkItemStyle()} href="https://github.com/natebuckareff">
-                                <GithubIcon class="w-5 h-5" />
-                            </a>
-                        </li>
+                <ul class="flex items-center gap-4">
+                    <li class={iconItemStyle()}>
+                        <a class={linkItemStyle()} href="https://github.com/natebuckareff">
+                            <GithubIcon class="w-5 h-5" />
+                        </a>
+                    </li>
 
-                        <li class={iconItemStyle()}>
-                            <a class={linkItemStyle()} href="https://twitter.com/anynate">
-                                <TwitterIcon class="w-5 h-5" />
-                            </a>
-                        </li>
+                    <li class={iconItemStyle()}>
+                        <a
+                            class={linkItemStyle()}
+                            href="https://www.linkedin.com/in/nate-buckareff-08b527144/"
+                        >
+                            <LinkedinIcon class="w-5 h-5" />
+                        </a>
+                    </li>
 
-                        <li class={iconItemStyle() + ' mr-4'}>
-                            <a class={linkItemStyle()} href="mailto:n@nateb.xyz">
-                                <MessageIcon class="w-5 h-5" />
-                            </a>
-                        </li>
-                    </ul>
-                </Show>
+                    <li class={iconItemStyle()}>
+                        <a class={linkItemStyle()} href="https://twitter.com/anynate">
+                            <TwitterIcon class="w-5 h-5" />
+                        </a>
+                    </li>
 
-                <ul class="flex flex-wrap items-center w-full sm:w-auto justify-between gap-4 text-lg">
+                    <li class={iconItemStyle() + ' mr-4'}>
+                        <a class={linkItemStyle()} href="mailto:n@nateb.xyz">
+                            <MessageIcon class="w-5 h-5" />
+                        </a>
+                    </li>
+                </ul>
+
+                <ul class="flex flex-wrap items-center w-full sm:w-auto justify-between gap-x-4 gap-y-1 text-lg">
                     <li class={itemStyle({ active: matches('/') })}>
                         <A href="/">Home</A>
                     </li>
@@ -101,31 +111,56 @@ const Nav = () => {
     );
 };
 
-const Footer = () => (
-    <footer class="text-center text mt-auto px-4 sm:px-10 py-4 sm:pb-8 text-gray-500 dark:text-gray-400">
-        <A class="hover:underline" href="/consulting">
-            {/* About this site */}
-            About
-        </A>{' '}
-        {'—'} <DeploymentLink />
-    </footer>
-);
+const Footer = () => {
+    const location = useLocation();
+    return (
+        <footer class="flex flex-wrap justify-center gap-3 text mt-auto px-4 sm:px-10 py-4 sm:pb-8 text-gray-500 dark:text-gray-400">
+            <Show when={location.pathname !== '/about'}>
+                <A class="hover:underline" href="/about">
+                    About this site
+                </A>
+                {'—'}
+            </Show>
+
+            <Show when={location.pathname !== '/analytics'}>
+                <A class="hover:underline" href="/analytics">
+                    Stats
+                </A>
+                {'—'}
+            </Show>
+
+            <DeploymentLink />
+        </footer>
+    );
+};
 
 const DeploymentLink = () => {
     const commit = env.get('DEPLOY_COMMIT');
     const timestamp = env.get('DEPLOY_TIMESTAMP');
+    const gitUrl = 'https://github.com/natebuckareff/nateb.xyz/commit/' + commit;
     const getTime = useTimestampRelativeDistance(timestamp);
     const [getExpanded, setExpanded] = createSignal(false);
-    const handleClick = () => setExpanded(x => !x);
+
+    const handleClick = () => {
+        setExpanded(x => !x);
+        window.scrollTo(0, document.documentElement.scrollHeight);
+    };
+
+    const linkStyle = cva(['text-sm inline animate-pulse'], {
+        variants: {
+            expanded: {
+                true: 'inline',
+                false: 'hidden',
+            },
+        },
+    });
+
     return (
         <div class="inline">
-            <span onClick={handleClick} class="hover:underline cursor-pointer">
+            <span class="hover:underline cursor-pointer" onClick={handleClick}>
                 {commit.slice(0, 7)}
             </span>{' '}
-            <a
-                class={'text-sm inline animate-pulse ' + (getExpanded() ? 'inline' : 'hidden')}
-                href={'https://github.com/natebuckareff/nateb.xyz/commit/' + commit}
-            >
+            <a class={linkStyle({ expanded: getExpanded() })} href={gitUrl}>
                 (deployed {getTime()})
             </a>
         </div>

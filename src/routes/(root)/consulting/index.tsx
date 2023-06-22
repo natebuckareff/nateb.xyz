@@ -1,4 +1,5 @@
 import { marked } from 'marked';
+import { renderToString } from 'solid-js/web';
 import { useRouteData } from 'solid-start';
 import { createServerData$ } from 'solid-start/server';
 import { MessageIcon } from '~/components/icons/message-icon';
@@ -6,10 +7,29 @@ import Document from './consulting.md?raw';
 
 export function routeData() {
     return createServerData$(() => {
-        const markdown = marked(Document, { mangle: false, headerIds: false });
+        const markdown = marked(Document, {
+            mangle: false,
+            headerIds: false,
+            hooks: {
+                preprocess(markdown) {
+                    return markdown;
+                },
+                postprocess(html) {
+                    return html.replace('🇨🇦', renderToString(CanadaFlag));
+                },
+            },
+        });
         return { markdown };
     });
 }
+
+const CanadaFlag = () => (
+    <img
+        style={{ margin: '0 0 4px 0 !important' }}
+        class="w-[1.6rem] h-[1.6rem] inline-block"
+        src="/canada.png"
+    />
+);
 
 export default function Consulting() {
     const getRouteData = useRouteData<typeof routeData>();
@@ -34,7 +54,7 @@ export default function Consulting() {
                 innerHTML={getRouteData()?.markdown}
             />
 
-            <ContactC2A class="mx-auto max-w-[400px]">Contact me</ContactC2A>
+            <ContactC2A class="mx-auto p-4 max-w-[400px]">Contact me</ContactC2A>
         </div>
     );
 }

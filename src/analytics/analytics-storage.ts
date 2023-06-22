@@ -48,8 +48,12 @@ export class AnalyticsStorage {
         `);
 
         this._insertEvent = this._db.prepare<InsertEventParams>(`
-            INSERT INTO ${this.tableName} (type, time, request, page, path, referer, ua, ua_brand, ua_mobile, ua_platform, lang, tz, v_width, v_height, s_width, s_height, scroll_amount, blur_elapsed)
-            VALUES (@type, @time, @request, @page, @path, @referer, @ua, @ua_brand, @ua_mobile, @ua_platform, @lang, @tz, @v_width, @v_height, @s_width, @s_height, @scroll_amount, @blur_elapsed)
+            INSERT INTO ${this.tableName}
+            (type, time, request, page, path, referer, ua, ua_brand, ua_mobile, ua_platform,
+             lang, tz, v_width, v_height, s_width, s_height, scroll_amount, blur_elapsed)
+            VALUES
+            (@type, @time, @request, @page, @path, @referer, @ua, @ua_brand, @ua_mobile, @ua_platform,
+             @lang, @tz, @v_width, @v_height, @s_width, @s_height, @scroll_amount, @blur_elapsed)
         `);
 
         this._insertManyEvents = this._db.transaction((events: AnalyticsEvent[]) => {

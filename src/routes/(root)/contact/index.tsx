@@ -1,52 +1,170 @@
 import { cva } from 'class-variance-authority';
-import { JSX, Match, Switch, splitProps } from 'solid-js';
-import { createRouteAction } from 'solid-start';
+import { JSX, Match, Show, Switch, createEffect, createSignal, splitProps } from 'solid-js';
+import { createServerAction$ } from 'solid-start/server';
+import { z } from 'zod';
 import SendIcon from '~/components/icons/send-icon';
+import { messageService } from '~/message-service';
+
+const MESSAGE_MAX_LENGTH = 1_024;
+
+const formSchema = z.object({
+    name: z.string().max(64),
+    email: z.string().max(64),
+    message: z.string().max(MESSAGE_MAX_LENGTH),
+});
 
 export default function Contact() {
-    const [action, { Form }] = createRouteAction(async (formData: FormData) => {
+    const [action, { Form }] = createServerAction$(async (formData: FormData) => {
         await new Promise(resolve => setTimeout(resolve, 2_000));
+        const value = formSchema.parse({
+            name: formData.get('name'),
+            email: formData.get('email'),
+            message: formData.get('message'),
+        });
+        messageService.appendMessage(value);
+        return new Response(null, { status: 200 });
     });
 
+    const [getSuccess, setSuccess] = createSignal<string>();
+    const [getError, setError] = createSignal<string>();
+    const [getMessageLength, setMessageLength] = createSignal(MESSAGE_MAX_LENGTH);
+
+    const handleMessageInput: JSX.EventHandler<HTMLTextAreaElement, InputEvent> = e => {
+        setMessageLength(MESSAGE_MAX_LENGTH - e.currentTarget.value.length);
+    };
+
+    let nameRef: HTMLInputElement;
+    let emailRef: HTMLInputElement;
+    let messageRef: HTMLTextAreaElement;
+
+    createEffect(() => {
+        if (action.error) {
+            setError();
+            setError('Failed to send message');
+        }
+
+        if (action.result?.ok === true) {
+            nameRef.value = '';
+            emailRef.value = '';
+            messageRef.value = '';
+
+            setSuccess('Message sent.');
+            setError();
+            setMessageLength(MESSAGE_MAX_LENGTH);
+        }
+    });
+
+    const alertStyle = cva(
+        ['p-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400'],
+        {
+            variants: {
+                error: {
+                    true: 'text-red-800 bg-red-50 dark:bg-gray-800 dark:text-red-400',
+                },
+            },
+        }
+    );
+
+    const badgeStyle = cva(
+        [
+            'bg-green-100 text-green-800 text-xs font-medium',
+            'px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300',
+        ],
+        {
+            variants: {
+                red: {
+                    true: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+                },
+            },
+        }
+    );
+
     return (
-        <main>
-            <Form class="flex flex-col items-start gap-4 mx-auto max-w-lg">
-                <div class="flex flex-col w-full">
-                    <Label for="name">Name</Label>
-                    <Input
-                        class="max-w-sm"
-                        type="text"
-                        id="name"
-                        placeholder="Your name"
-                        required
-                        disabled={action.pending}
-                    />
+        <main class="flex flex-col gap-5 mx-auto w-full max-w-lg">
+            <h1 class="font-bold text-4xl mb-4">Contact</h1>
+
+            <Form class="flex flex-col items-start gap-4 w-full">
+                <div class="flex flex-wrap gap-4 w-full">
+                    <Show when={getSuccess()}>
+                        {success => (
+                            <div class={alertStyle({ class: 'w-full mb-4' })} role="alert">
+                                <span class="font-medium">{success()}</span>
+                            </div>
+                        )}
+                    </Show>
+
+                    <Show when={getError()}>
+                        {error => (
+                            <div
+                                class={alertStyle({ class: 'w-full mb-4', error: true })}
+                                role="alert"
+                            >
+                                <span class="font-medium">{error()}</span>
+                            </div>
+                        )}
+                    </Show>
+
+                    <div class="flex flex-col grow min-w-[50px]">
+                        <Label for="name">Name</Label>
+                        <Input
+                            ref={nameRef!}
+                            type="text"
+                            id="name"
+                            name="name"
+                            placeholder="Your name"
+                            required
+                            disabled={action.pending}
+                        />
+                    </div>
+
+                    <div class="flex flex-col grow min-w-[50px]">
+                        <Label for="email">Email</Label>
+                        <Input
+                            ref={emailRef!}
+                            type="text"
+                            id="email"
+                            name="email"
+                            placeholder="Your email address"
+                            required
+                            disabled={action.pending}
+                        />
+                    </div>
                 </div>
 
                 <div class="flex flex-col w-full">
-                    <Label for="email">Email</Label>
-                    <Input
-                        class="max-w-sm"
-                        type="text"
-                        id="email"
-                        placeholder="Your email address"
-                        required
-                        disabled={action.pending}
-                    />
-                </div>
+                    <div class="flex items-start">
+                        <Label for="message">Message</Label>
 
-                <div class="flex flex-col w-full">
-                    <Label for="message">Message</Label>
+                        <Switch>
+                            <Match when={getMessageLength() > 0}>
+                                <Show when={getMessageLength() < MESSAGE_MAX_LENGTH - 32}>
+                                    <div class={badgeStyle({ class: 'ml-auto' })}>
+                                        {getMessageLength()}
+                                    </div>
+                                </Show>
+                            </Match>
+
+                            <Match when={getMessageLength() <= 0}>
+                                <div class={badgeStyle({ class: 'ml-auto', red: true })}>
+                                    {getMessageLength()}
+                                </div>
+                            </Match>
+                        </Switch>
+                    </div>
+
                     <textarea
+                        ref={messageRef!}
                         id="message"
+                        name="message"
                         rows="4"
                         class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                         placeholder="Write your thoughts here..."
                         disabled={action.pending}
+                        onInput={handleMessageInput}
                     />
                 </div>
 
-                <Button class="flex items-center justify-center gap-0" disabled={action.pending}>
+                <Button class="flex items-center justify-center" disabled={action.pending}>
                     <Switch>
                         <Match when={!action.pending}>
                             <SendIcon class="w-4 h-4 mr-2" /> Send
