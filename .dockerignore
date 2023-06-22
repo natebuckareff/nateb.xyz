@@ -1,0 +1,11 @@
+*
+
+!/articles
+!/public
+!/src
+!/package.json
+!/pnpm-lock.yaml
+!/postcss.config.cjs
+!/tailwind.config.cjs
+!/tsconfig.json
+!/vite.config.ts

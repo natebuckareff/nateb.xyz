@@ -5,6 +5,7 @@
 *.ignore
 
 dist
+bundle
 .solid
 .output
 .vercel

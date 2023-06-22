@@ -3,12 +3,15 @@
     "scripts": {
         "dev": "solid-start dev",
         "build": "NODE_ENV=production solid-start build",
-        "start": "solid-start start"
+        "start": "solid-start start",
+        "bundle-server": "ncc build dist/server.js -e better-sqlite3 -o bundle",
+        "copy-assets": "cp -r dist/public bundle"
     },
     "type": "module",
     "devDependencies": {
         "@types/better-sqlite3": "^7.6.4",
         "@types/marked": "^5.0.0",
+        "@vercel/ncc": "^0.36.1",
         "autoprefixer": "^10.4.14",
         "postcss": "^8.4.24",
         "solid-start-node": "^0.2.26",
@@ -28,7 +31,8 @@
         "solid-start": "^0.2.26",
         "undici": "^5.22.1",
         "yaml": "^2.3.1",
-        "zod": "^3.21.4"
+        "zod": "^3.21.4",
+        "zod-lazy-env": "^0.1.0"
     },
     "engines": {
         "node": ">=16"
