@@ -1,0 +1,26 @@
+services:
+  nateb.xyz:
+    image: node:18-alpine
+    working_dir: /web
+    command: >
+      sh -c "npm install --location=global pnpm@8.6.1 &&
+        pnpm config set store-dir /root/.local/share/pnpm/store/ --global &&
+        pnpm install &&
+        pnpm run dev --host"
+    networks:
+      - caddy_ingress
+    environment:
+      - VITE_DEPLOY_COMMIT
+      - VITE_DEPLOY_TIMESTAMP
+      - ARTICLES_DIRNAME
+      - SQLITE_FILENAME
+    volumes:
+      - .:/web
+      - /web/node_modules
+      - $USER/.local/share/pnpm/store:/root/.local/share/pnpm/store
+    labels:
+      caddy: natebxyz.localhost
+      caddy.reverse_proxy: '{{upstreams 3000}}'
+
+volumes:
+  node_data: {}
