@@ -34,9 +34,9 @@ export default function Home() {
                 </div>
 
                 <p class="text-lg">
-                    <span class={styles['waving-hand']}>👋</span> Hello! I love to build things,
-                    esspecially tools that help people create. I'm interested in computers, tech,
-                    physics, philosophy, and politics.
+                    <span class={styles['waving-hand']}>👋</span> Hello! I love to build things, especially
+                    tools that help people create. I'm interested in computers, tech, physics, philosophy, and
+                    politics.
                 </p>
 
                 <A href="/consulting">
@@ -72,9 +72,7 @@ export default function Home() {
                 <div class="flex flex-col gap-4">
                     <Show when={getRouteData()?.articles}>
                         {articles => (
-                            <For each={articles()}>
-                                {article => <ArticleCard article={article} />}
-                            </For>
+                            <For each={articles()}>{article => <ArticleCard article={article} />}</For>
                         )}
                     </Show>
                 </div>
