@@ -1,0 +1,5 @@
+/.env.*
+/.secrets/secret-age-identity
+
+!/.env.*.age
+!/.env.dev.example

@@ -1,0 +1,29 @@
+ARG NODE_MAJOR
+ARG NODE_MINOR
+
+FROM node:${NODE_MAJOR}.${NODE_MINOR}-bookworm-slim as base
+ARG PNPM_VERSION
+RUN npm install --location=global pnpm@${PNPM_VERSION}
+
+FROM base as builder
+WORKDIR /app/site
+COPY ./pnpm-lock.yaml .
+RUN pnpm fetch
+COPY . .
+RUN pnpm install --offline --frozen-lockfile
+RUN pnpm run build
+RUN pnpm run bundle-server
+RUN pnpm run copy-assets
+
+FROM base as external
+WORKDIR /app/site
+RUN echo '{ "type": "module" }' > package.json
+RUN pnpm install better-sqlite3
+
+FROM node:${NODE_MAJOR}.${NODE_MINOR}-bookworm-slim
+RUN rm -r /opt/yarn-*
+RUN rm -r /root/.npm
+RUN rm -r /tmp/*
+COPY --from=external /app/site/node_modules node_modules
+COPY --from=builder /app/site/bundle bundle
+ENTRYPOINT ["node", "bundle/index.js"]
