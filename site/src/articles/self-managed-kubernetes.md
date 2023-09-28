@@ -9,9 +9,9 @@ published: 2023-09-21
 
 Have you ever wanted to run your own IaaS? Maybe you want to host your own projects with Kubernetes, but not pay for a managed service. Or maybe self-managed Kubernetes _is_ your project! For me, it was both, so I set out to learn how to run my own cluster on virtual private servers.
 
-Initially I thought that installing Kubernetes was going to be the hard part, but it turns out that it's actually pretty straight forward thanks to projects like [k0s](https://k0sproject.io/). Instead, I ended up learning about Cloud-Init, QEMU, Linux virtual networking interfaces, and HAProxy.
+Initially, I thought that installing Kubernetes was going to be the hard part, but it turns out that it's actually pretty straight forward thanks to projects like [k0s](https://k0sproject.io/). Instead, I ended up learning about Cloud-Init, QEMU, Linux virtual networking interfaces, and HAProxy.
 
-Before getting into setting up our cluster, a warning: **do not do this for a revenue-generating system!** Setting up Kubernetes is one thing, but maintaining that cluster over time and keeping it up-to-date is much harder. In the future I'd like to explore zero-downtime cluster migrations as an alternative to mutable in-place upgrades and zonal clusters for highly available workloads. But my advice to anyone considering Kubernetes for a production system: either be prepared to become a Kubernetes expert, hire an expert, or pay for a managed service. Use [Docker Compose](https://docs.docker.com/compose/) for as long as your workload can fit on a single server (most can!).
+Before getting into setting up our cluster, a warning: **do not do this for a revenue-generating system!** Setting up Kubernetes is one thing, but maintaining that cluster over time and keeping it up-to-date is much harder. My advice to anyone considering Kubernetes for a production system: either be prepared to become a Kubernetes expert, hire an expert, or pay for a managed service. Use [Docker Compose](https://docs.docker.com/compose/) for as long as your workload can fit on a single server (most can!).
 
 Table of Contents:
 - [[#Overview]]
@@ -25,35 +25,35 @@ Table of Contents:
 
 ## Overview
 
-We'll be walking through how to bootstrap a local cluster of VMs using QEMU, setup a virtual network using the `ip` command, install Kubernetes using k0s, and finally setting up a load balancer using HAProxy.
+We'll be walking through how to bootstrap a local cluster of VMs using QEMU, setup a virtual network using the `ip` command, install Kubernetes using k0s, set up an ingress controller, and use HAProxy as a load balancer.
 
-This tutorial assumes that you're using Linux. If not, the [[#Virtual Network]] section will be different for you.
+This tutorial assumes that you're using Linux.
 
 Alright, lets get into it by first setting up our VMs!
 
 ## Local Test Environment
 
-We'll be creating the VMs using QEMU, all running locally. Initially I considered using VPSs, but local makes more sense when you want to experiment and iterate quickly. The setup could then also serve as a starting point for a Kubernetes CI/CD system or a local development environment, depending on your goals.
+We'll be creating the VMs using QEMU, all running locally. Initially I considered using VPSs, but local makes more sense when you want to experiment and iterate quickly. The setup could then also serve as a starting point for a Kubernetes CI/CD system or a local development environment, depending on your goals. 
 
-When we'll end up with should look something like this:
+Here is a high-level, architectural diagram of what we'll be building:
 
 ![[self-managed-k8s-architecture.excalidraw]]
 
-There will be four QEMU VMs running in their own private `/24` network. These are the cluster nodes. Three will be running Kubernetes and the other will be an HAProxy load balancer. Every node will have a virtual TAP device that is plugged in to the virtual bridge `br0`. A `dnsmasq` daemon running on the host will assign IP addresses to our nodes based on their MAC address.
+There will be four QEMU VMs in their own private `/24` network. Three will be running Kubernetes and the other one will be an HAProxy load balancer. Every node will have a virtual TAP device that is plugged in to the virtual bridge `br0`. A `dnsmasq` daemon running on the host will assign IP addresses to our nodes based on their MAC address.
 
 > I'm using QEMU, but you could use any Linux virtualization software. VirtualBox or VMWare would work. There's also [libvirt](https://libvirt.org/) which abstracts over different virtualization backends (including QEMU) if that's your thing.
 
-The private network acts as simple [VPC](https://en.wikipedia.org/wiki/Virtual_private_cloud) running locally. There is an `iptables` that enables the nodes to reach the internet.
+The private network is acting like an emulated [VPC](https://en.wikipedia.org/wiki/Virtual_private_cloud). There is an `iptables` rule to allow the nodes to reach the external network.
 
-Each node is configured with a static MAC address. `dnsmasq` will then use the MAC address of a client to assign the IP address configured for that MAC.
+Each node is configured with a predefined MAC address. `dnsmasq` will then use the MAC address of a client to assign the IP address configured for that MAC.
 
 > You could instead use Cloud-Init to statically assign IP addresses, but you'll then need to create a seed ISO for each node.
 
-We'll go over the HAProxy VM in the [[#Ingress and Load Balancing]] section, but essentially it will reverse proxy external traffic into the Kubernetes cluster.
+The HAProxy node is responsible for reverse proxying external traffic to the Kubernetes nodes.
 
 ### Debian on QEMU with Cloud-init
 
-We'll be using Debian 12 for our VMs, and specifically the [generic cloud image](https://cloud.debian.org/images/cloud/). This image is optimized for VMs by excluding drivers for physical hardware. While not strictly necessary, it gives us a solid foundation if later we decide to manage our own VMs on bare metal servers.
+We'll be using Debian 12 for the VMs, and specifically the [generic cloud image](https://cloud.debian.org/images/cloud/). This image is optimized for VMs by excluding drivers for physical hardware. While not strictly necessary, it gives us a solid foundation if later we decide to manage our own VMs on bare metal servers.
 
 Let's download the latest version of the Debian 12 generic cloud image:
 
@@ -65,9 +65,9 @@ The downside of this image (or upside if you value minimalism) is that it's not 
 
 So the basic pattern is: every time we want to create a new VM we clone the base disk image and then boot the VM using that fresh disk image and a seed ISO. If each VM needs to be configured differently, then we'd generate a new seed ISO on the fly with that configuration.
 
-In our case, all of our VMs will be configured with our SSH public key so we can login remotely from our terminal.
+In our case, all of our VMs will be configured with our SSH public key so we can login remotely from a terminal.
 
-We'll use the `cloud-localds` tool to create our seed ISO file. If you're on Ubuntu, you need to install the `cloud-image-utils` package:
+We'll use the `cloud-localds` tool to create the seed ISO file. If you're on Ubuntu, you will need to install the `cloud-image-utils` package:
 
 ```shell
 sudo apt install cloud-image-utils
@@ -96,7 +96,7 @@ $ file seed.iso
 seed.iso: ISO 9660 CD-ROM filesystem data 'cidata'
 ```
 
-Next let's clone our base disk image that we already downloaded:
+Next let's clone the base disk image that we downloaded:
 
 ```shell
 cp ./debian12.qcow2 ./test.qcow2
@@ -127,7 +127,7 @@ QEMU has a lot of different flags, so let's break this command down:
 
 `-device virtio-net-pci,netdev=net0`: Creates a virtual network interface card and use the `net0` network backend. QEMU separates networking devices from networking backends. The device is the part that the guest system sees and the backend is what plugs in to the host environment.
 
-`-netdev user,id=net0,hostfwd=tcp::2222-:22`: Creates a network backend with the name `net0`. We're using the "user networking" (or SLIRP) backend type and forwarding traffic from port 2222 on the host to port 22 on the guest.
+`-netdev user,id=net0,hostfwd=tcp::2222-:22`: Creates a network backend with the name `net0`. We're using the "user networking" (or [SLIRP](https://wiki.qemu.org/Documentation/Networking#User_Networking_(SLIRP))) backend type and forwarding traffic from port 2222 on the host to port 22 on the guest.
 
 `-drive file=./test.qcow2,...`: Creates a virtual disk drive using the cloned Debian disk image.
 
@@ -137,7 +137,7 @@ QEMU has a lot of different flags, so let's break this command down:
 
 `-serial stdio`: Redirects the virtual console to stdout on our terminal for easier debugging. We do this mainly so that we can scroll back through the output.
 
-`-machine type=pc,accel=kvm`: Use [KVM](https://www.redhat.com/en/topics/virtualization/what-is-KVM) acceleration. This leverages native virtualization support on the host using the KVM kernel module.
+`-machine type=pc,accel=kvm`: Instructs QEMU to use [KVM](https://www.redhat.com/en/topics/virtualization/what-is-KVM) acceleration. This leverages native virtualization support on the host using the KVM kernel module.
 
 Alright, so after running that command the QEMU GUI will open and the VM will start to boot. We should see the virtual console output in the GUI and our terminal. Notice the `cloud-init` and `ci-info` log messages, one of which will reference your configured public key.
 
@@ -151,16 +151,16 @@ That was just a test VM. Next we're going to setup the virtual network and then 
 
 ## Virtual Network
 
-The test VM we just created was using the "user networking" backend type. This backend is great for testing, but has poor performance and isolates each VM to its own network. So if we had multiple VMs, they would not be able to reach each other. We ultimately want to create a cluster of VMs running on a single virtual network, so we therefore need to use a different networking backend.
+As mentioned before, the test VM we just created is using the "user networking" backend type. This backend is great for testing, but has poor performance and isolates each VM to its own network. We want to create a cluster of VMs running on a single virtual network, so we therefore need to use a different networking backend.
 
-Let's take a looking at that architecture diagram again:
+Let's take a looking at that diagram again:
 
 ![[self-managed-k8s-architecture.excalidraw]]
 
 There are four core networking components:
-1. The bridge device `br0` acts as a virtual switch that our VMs are all plugged into, forming the virtual LAN.
+1. The bridge device `br0` acts as a virtual switch that our VMs are all plugged into, forming a virtual LAN.
 2. Each VM has its own TAP device connected to it. The TAP device is then "plugged into" the bridge and forwards packets across the VM's virtual network interface card.
-4. A `dnsmasq` daemon which assigns IP addresses to the nodes.
+4. A `dnsmasq` daemon running as a DHCP server assigns IP addresses to the nodes.
 5. An `iptables` rule that makes `br0` act like a NAT router, allowing nodes to access the internet.
 
 Let's create the virtual bridge device using the `ip` command, assign it the IP address `10.0.0.0/24`, and bring it online:
@@ -169,7 +169,7 @@ Let's create the virtual bridge device using the `ip` command, assign it the IP 
 # Create the bridge
 sudo ip link add br0 type bridge
 
-# Assign an address to the interface. If we don't do this then dnsmasq will later complain that the interface it's bound to "has no address"
+# Assign an address to the interface. If we don't do this then dnsmasq will later complain that the interface it is bound to "has no address"
 sudo ip addr add 10.0.0.0/24 dev br0
 
 # Bring the bridge up
@@ -194,7 +194,7 @@ Next we need to create a TAP device for each of the four nodes that we'll be cre
 
 ```shell
 for NODE_NAME in node0 node1 node2 node3; do
-	echo "$NODE_NAME"
+	echo "${NODE_NAME}tap"
 
 	# Create the TAP device
 	sudo ip tuntap add "${NODE_NAME}tap" mode tap
@@ -246,7 +246,7 @@ server=8.8.4.4
 # Serve leases to hosts in the network
 dhcp-range=10.0.0.0,10.0.0.255
 
-# Serve static IPs to our VMs based on MAC address
+# Lease these IPs to nodes with the given MAC address
 dhcp-host=86:e2:e3:21:13:b4,10.0.0.10,node0
 dhcp-host=7c:92:6e:84:1f:50,10.0.0.11,node1
 dhcp-host=b0:aa:4c:4c:7b:1a,10.0.0.12,node2
@@ -256,7 +256,7 @@ dhcp-host=a6:fc:4a:66:8f:c9,10.0.0.13,node3
 The tree most important parts are:
 1. Binding `dnsmasq` to our bridge device.
 2. Forwarding DNS requests to `8.8.8.8` and `8.8.4.4`.
-3. Assigning static IPs to our VMs based on their MAC address.
+3. Assigning IPs to our VMs based on their MAC address.
 
 Finally, to start the `dnsmasq` daemon run this:
 
@@ -268,7 +268,7 @@ sudo dnsmasq \
 echo $! > dnsmasq.pid
 ```
 
-This will spawn `dnsmasq` into the background, redirect all of its output to the file `dnsmasq.log`, and write its PID to `dnsmasq.pid` which can then use later to `kill` the the daemon when we're finished.
+This will spawn `dnsmasq` into the background, redirect all of its output to the file `dnsmasq.log`, and write its PID to `dnsmasq.pid`. We can later use the PID to `kill` the the daemon when we're finished.
 
 The last thing we need to do is apply an `iptables` rule so that our nodes will be able to reach the internet:
 
@@ -331,9 +331,9 @@ With `-device` we explicitly sets the MAC address of the network interface card.
 
 With `-netdev` we use the `tap` network backend type and reference the name of the TAP device, `node0tap`, that we created earlier. We also set `script=no` so that QEMU doesn't try to automatically setup any additional host networking devices.
 
-> The `script` option defaults to `script=yes` which will try and automatically setup a bridge device for us when using the `tap` networking backend. Since we already create a bridge device (for the purpose of learning) we need to disable this.
+> The `script` option defaults to `script=yes` which will try and automatically setup a bridge device for us when using the `tap` networking backend. Since we already created a bridge device we need to disable this.
 
-We create two virtual drives with `-drive` just like before, but this time using the freshly cloned node disk image.
+We then create two virtual drives with `-drive` just like before, but this time using the freshly cloned node disk image.
 
 > Notice that we spawn the process into the background using `&` so we can create all of our VMs in the same terminal window. If something goes wrong, you can add the `-serial stdio` option and run each VMs in their own terminal to inspect the virtual console output.
 
@@ -355,11 +355,11 @@ Once the node has an IP address, we can login over SSH:
 ssh root@10.0.0.10
 ```
 
-Create three more nodes. Once all four are up and running we can finally install Kubernetes!
+Create three more nodes, making sure to use the correct TAP interface name and MAC address. Once all four are up and running we can finally install Kubernetes!
 
 ## Installing Kubernetes
 
-Just like Linux, there are many different distributions of Kubernetes each with their own installation method. For this tutorial we'll be using [k0s](https://k0sproject.io/). It installs itself as a single, statically linked binary running as a systemd service.
+Just like Linux, there are many different distributions of Kubernetes, each with their own installation method. For this tutorial we'll be using [k0s](https://k0sproject.io/). It installs itself as a single, statically linked binary running as a systemd service.
 
 There are other single-binary Kubernetes distributions we could choose. [k3s](https://k3s.io/) is a popular choice that focuses on ease of use and low-resource environments, while k0s focuses on minimalism and a more pure, upstream Kubernetes experience.
 
@@ -411,9 +411,11 @@ Each node has a role which can be either "controller" or "worker".
 
 Controller nodes form the control plane and - unsurprisingly - run  [Kubernetes control plane components](https://kubernetes.io/docs/concepts/overview/components/#control-plane-components). Worker nodes run your application workload and are what you see in the output of `kubectl get nodes`.
 
-> For this tutorial we're running a single controller node. In production you would run `2*k + 1` controller nodes, where `k` is the number of node failures the cluster can tolerate. Ideally, each controller node would [run in a different failure zone](https://kubernetes.io/docs/setup/best-practices/multiple-zones/).
+> For this tutorial we're running a single controller node. In production you would run `2*k + 1` controller nodes, where `k` is the number of node failures the cluster should be able to tolerate. Ideally, each controller node would [run in a different failure zone](https://kubernetes.io/docs/setup/best-practices/multiple-zones/).
 
 All we have to do now is tell `k0sctl` to apply our cluster configuration to the nodes:
+
+> The command may take a long time to download the k0s binary, especially if you get throttled by GitHub like me. In that case, you may want to download the latest binary yourself from their [GitHub releases page](https://github.com/k0sproject/k0s/releases/) and manually install it to `/usr/local/bin/k0s` as a part of the base disk image.
 
 ```shell
 k0sctl --debug apply \
@@ -421,11 +423,9 @@ k0sctl --debug apply \
 	--kubeconfig-out kubeconfig
 ```
 
-> The command may take a long time to download the k0s binary, especially if you get throttled by GitHub like me. In that case, you may wan to download the latest binary yourself from their [GitHub releases page](https://github.com/k0sproject/k0s/releases/) and manually install it to `/usr/local/bin/k0s` as a part of the base disk image.
+After this command runs you'll have a `kubeconfig` file in the current working directory which you can use to connect to the cluster using `kubectl`.
 
 > If anything goes wrong `k0sctl` will tell you the path of an error log file on your system. For me it was `~/.cache/k0sctl/k0sctl.log`.
-
-After this command runs you'll have a `kubeconfig` file in the current working directory which you can use to connect to the cluster using `kubectl`.
 
 Confirm that the cluster is running:
 
@@ -452,17 +452,17 @@ Now that we have a working Kubernetes cluster, the next step is to setup an ingr
 
 ## Ingress and Load Balancing
 
-In Kubernetes, an ingress controller is responsible for routing HTTP requests to your application's services. However, the ingress controller doesn't say anything about how external traffic gets to the ingress controller.
+In Kubernetes, the ingress controller manages the routing of HTTP traffic to the services of your application. However, it does not define how external traffic actually reaches the ingress controller in the first place.
 
 When you use a managed Kubernetes service like GKE or EKS, you may have noticed that the ingress controller's service is of the type `LoadBalancer`.
 
-This signals to the cloud environment that it should provision an external load balancer for your cluster. The ingress controller will then receive an `EXTERNAL IP` which is a externally accessible IP address associated with the load balancer.
+This signals to the cloud environment that it should provision an external load balancer for that cluster. The ingress controller will then receive an `EXTERNAL IP` which is an externally accessible IP address associated with the load balancer. External traffic received by the load balancer on that address will then be proxied to the cluster's ingress controller.
 
-Since we don't have a cloud environment, we need to setup a load balancer ourselves. That's where the fourth node comes.
+Since we don't have a cloud environment, we need to setup a load balancer ourselves. That's where the fourth node comes in.
 
-> In Kubernetes, [services can be of the type](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) `ClusterIP`, `NodePort`, `LoadBalancer`, or `ExternalName`. Reading the docs you'll see that as far as Kubernetes is concerned, the `LoadBalancer` type _doesn't actually do anything_. This is a common point of confusion when trying to learn Kubernetes fundamentals in a cloud environment (well, at least it was for me!).
+> In Kubernetes, [services can be of the type](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) `ClusterIP`, `NodePort`, `LoadBalancer`, or `ExternalName`. Reading the docs you'll see that as far as Kubernetes is concerned, the `LoadBalancer` type _doesn't actually do anything_. This is a common point of confusion when trying to learn Kubernetes in a cloud environment (well, at least it was for me!).
 
-First we need to actually install an ingress controller. We'll be using `ingress-nginx`. Then we'll run [HAProxy](https://www.haproxy.org/) on `node3` and configure it to reverse proxy all HTTP and HTTPS traffic it receives to the ingress controller.
+First we need to actually install an ingress controller. We'll be using `ingress-nginx`. Then we'll install [HAProxy](https://www.haproxy.org/) on `node3` and configure it to reverse proxy all HTTP and HTTPS traffic it receives to the ingress controller.
 
 More specifically, the ingress controller will be configured with a `NodePort` service that HAProxy will be able to reference as a reverse proxy backend.
 
@@ -470,7 +470,7 @@ The network flow will look something like this:
 
 ![[self-managed-k8s-nodeports.excalidraw]]
 
-External packets sent through the bridge to node3. HAProxy is running on node3 and configured to reverse proxy HTTP and HTTPS requests to the ingress controller's `NodePort` service which exposes ports on each of the worker nodes.
+The ingress controller's `NodePort` service exposes ports on each worker node. HAProxy then reverse proxies the HTTP(S) traffic it receives to those ports.
 
 Alright, so now we need to install `ingress-nginx`. We apply the "baremetal" manifest as per the [documentation for setting up a `NodePort` service](https://kubernetes.github.io/ingress-nginx/deploy/#bare-metal-clusters).
 
@@ -478,7 +478,7 @@ Alright, so now we need to install `ingress-nginx`. We apply the "baremetal" man
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.2/deploy/static/provider/baremetal/deploy.yaml
 ```
 
-> In a production cluster you should instead use the [Helm installation method](https://kubernetes.github.io/ingress-nginx/deploy/#quick-start) which will automate the process of upgrading the ingress controller.
+> In a production cluster you should instead use the [Helm installation method](https://kubernetes.github.io/ingress-nginx/deploy/#quick-start) which will help automate the process of upgrading the ingress controller.
 
 Once the ingress controller finishes installing you should see something like this:
 
@@ -501,7 +501,7 @@ ingress-nginx-controller-admission   ClusterIP   10.105.197.7    <none>        4
 
 The service `ingress-nginx-controller` is of type `NodePort`, as expected, and has allocated the port `30299` for HTTP and `30448` for HTTPS. Take note of these as we'll need them to configure HAProxy.
 
-> Your ports may be different than mine! Kubernetes will allocate the port number from a pre-configured range based on availability. [The ports do not change unless manually deallocated](https://discuss.kubernetes.io/t/is-the-nodeport-number-stable-after-it-is-created/11232) (such as when deleting the service).
+> Your ports may be different than mine! Kubernetes will allocate ports from a pre-configured range based on availability. [The ports do not change unless manually deallocated](https://discuss.kubernetes.io/t/is-the-nodeport-number-stable-after-it-is-created/11232) (such as when deleting the service).
 
 Now that the ingress controller is installed and ready to use, we can install HAProxy on the load balancer node:
 
@@ -587,11 +587,11 @@ backend https-backend
 
 This configures two frontends and two backends; one for HTTP and the other for HTTPS.
 
-A frontend is a socket that HAProxy binds to and accepts packets on. A backend reverse proxies packets from some frontend to an arbitrary server. Here we're proxying HTTP(S) traffic to the two worker nodes on the exposed node ports.
+A frontend is a socket that HAProxy binds to and accepts packets on. A backend reverse proxies packets from some frontend to a server. Here we're proxying HTTP(S) traffic to the two worker nodes on the exposed node ports.
 
 Notice that the HTTPS frontend and backend have the option `mode tcp`. Using an HTTPS frontend with a `mode tcp` backend is called is called [TLS passthrough](https://www.haproxy.com/documentation/aloha/latest/security/tls/encryption-strategies/#tls-passthrough) . It tells HAProxy to just pass the encrypted TCP packets through to the backend servers without trying to decrypt them.
 
-This enables us to keep certificate management confined to Kubernetes. Otherwise, we'd have to install our HTTPS certificates into the ingress controller and the load balancer. 
+This enables us to keep certificate management confined to Kubernetes. Otherwise, we'd have to install our HTTPS certificates into both the ingress controller the load balancer.
 
 Let's test that the config works:
 
@@ -612,9 +612,9 @@ strict-transport-security: max-age=15724800; includeSubDomains
 </html>
 ```
 
-Now we get a 404 instead of a connection error! Notice that it's an Nginx error, which means we are reaching the ingress controller from the load balancer.
+Now we get a 404 instead of a connection error. Notice that it's an Nginx error, which means we are reaching the ingress controller from the load balancer!
 
-This means we're finally ready to deploy an application to the cluster. Let's use [this whoami container](https://hub.docker.com/r/traefik/whoami) and configure a deployment, service, and ingress route:
+We're finally ready to deploy an application to the cluster. Let's use [this whoami container](https://hub.docker.com/r/traefik/whoami) and configure a deployment, service, and ingress route:
 
 ```yaml
 apiVersion: apps/v1
@@ -672,7 +672,7 @@ spec:
                   number: 80
 ```
 
-This is very boilerplate Kubernetes. In the ingress spec we [reference the ingress controller](https://kubernetes.github.io/ingress-nginx/user-guide/basic-usage/) by setting `ingressClassName` to `nginx`, and in the rules we use `example.com` as our host.
+This is just boilerplate Kubernetes. In the ingress spec we [reference the ingress controller](https://kubernetes.github.io/ingress-nginx/user-guide/basic-usage/) by setting `ingressClassName` to `nginx`, and in the rules we use `example.com` as our host.
 
 Let's test the endpoint!
 
@@ -709,7 +709,7 @@ If you want to check using a browser: first add the line `10.0.0.13 example.com`
 
 If you got this far, congratulations you now know the basics of setting up your own Kubernetes cluster!
 
-Apply this to managed cloud VMs is actually quite easy since you don't need to setup any custom disk images or networking; the cloud provider will do all of that for you.
+Applying this to a cluster of VPSs is actually quite easy since you don't need to setup any custom disk images or networking; the cloud provider will do all of that for you!
 
 When installing Kubernetes with `k0sctl`, be sure to [read the docs](https://github.com/k0sproject/k0sctl) to properly setup a bastion host so you don't need to give all of your nodes public IP addresses.
 
