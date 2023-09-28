@@ -2,6 +2,7 @@ import { A } from 'solid-start';
 import useDarkMode from '~/hooks/use-dark-mode';
 import MoonIcon from '~/icons/moon-icon';
 import SunIcon from '~/icons/sun-icon';
+import Link from './link';
 
 export default function SiteHeader() {
     const [, setDarkMode] = useDarkMode();
@@ -12,18 +13,13 @@ export default function SiteHeader() {
                     Nate Buckareff
                 </A>
 
-                <a
-                    class="x-link"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href="https://github.com/natebuckareff"
-                >
+                <Link class="x-link" href="https://github.com/natebuckareff">
                     GitHub
-                </a>
+                </Link>
 
-                {/* <A class="x-link" href="/contact">
+                <A class="x-link" href="/contact">
                     Contact
-                </A> */}
+                </A>
 
                 {/* <A class="x-link" href="/resume">
                     Resume
