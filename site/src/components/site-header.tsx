@@ -46,7 +46,7 @@ export default function SiteHeader() {
                     style={{ display: getTheme().system ? 'none' : 'block' }}
                     onClick={handleSystemThemeClick}
                 >
-                    <GearIcon class="invisible group-hover:visible stroke-slate-500 dark:stroke-yellow-500 w-4 h-4" />
+                    <GearIcon class="transition-opacity ease-in-out opacity-0 group-hover:opacity-50 stroke-slate-500 dark:stroke-yellow-500 w-4 h-4" />
                 </button>
 
                 <button onClick={handleAppThemeClick}>

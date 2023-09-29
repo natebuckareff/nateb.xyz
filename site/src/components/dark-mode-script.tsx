@@ -1,6 +1,6 @@
 export default function DarkModeScript() {
     const code = SCRIPT.replace('\n', '').trim();
-    return <script>{code}</script>;
+    return <script defer>{code}</script>;
 }
 
 const SCRIPT = `
