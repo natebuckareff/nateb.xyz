@@ -7,7 +7,7 @@ import './root.css';
 
 export default function Root() {
     return (
-        <Html class="relative" lang="en">
+        <Html lang="en">
             <Head>
                 <Title>nateb.xyz</Title>
                 <Meta charset="utf-8" />

@@ -1,49 +1,47 @@
-import { createSignal, onMount } from 'solid-js';
+import { createSignal } from 'solid-js';
 import { isServer } from 'solid-js/web';
 
 export interface Theme {
+    value: 'dark' | 'light';
     system: boolean;
-    dark: boolean;
 }
 
 export default function useDarkMode() {
-    const [getTheme, setTheme] = createSignal<Theme>(getWindowTheme());
+    const [getTheme, setThemeSignal] = createSignal<Theme>(getCurrentTheme());
 
-    onMount(() => {
-        setTheme(getWindowTheme());
-    });
-
-    const setDarkMode = (arg: boolean | ((prev: Theme) => boolean)) => {
-        const dark = typeof arg === 'function' ? arg(getTheme()) : arg;
-        setTheme({ system: false, dark });
-        setWindowTheme(dark);
+    const setThemeValue = (value: Theme['value']) => {
+        sessionStorage.setItem('theme', value);
+        applyTheme(value);
+        setThemeSignal(getCurrentTheme());
     };
 
-    const unsetTheme = () => {
+    const clearTheme = () => {
         sessionStorage.removeItem('theme');
-        setTheme(getWindowTheme());
+        applyTheme(getSystemTheme());
+        setThemeSignal(getCurrentTheme());
     };
 
-    return [getTheme, setDarkMode, unsetTheme] as const;
+    const applyTheme = (value: Theme['value']) => {
+        if (value === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    };
+
+    return [getTheme, setThemeValue, clearTheme] as const;
 }
 
-export const getWindowTheme = (): Theme => {
-    const theme = isServer ? null : sessionStorage.getItem('theme');
-    const themeDark = theme === 'dark';
-    const themeNone = theme === null;
-    const query = '(prefers-color-scheme: dark)';
-    const themeSystemDark = isServer ? false : window.matchMedia(query).matches;
-    return {
-        system: themeNone,
-        dark: themeDark || (themeNone && themeSystemDark),
-    };
+const getSystemTheme = () => {
+    const query = isServer ? false : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return query ? 'dark' : 'light';
 };
 
-export const setWindowTheme = (dark: boolean): void => {
-    sessionStorage.setItem('theme', dark ? 'dark' : 'light');
-    if (dark) {
-        document.documentElement.classList.add('dark');
-    } else {
-        document.documentElement.classList.remove('dark');
+const getCurrentTheme = (): Theme => {
+    const item = isServer ? null : sessionStorage.getItem('theme');
+    if (item === null) {
+        const value = getSystemTheme();
+        return { value, system: true };
     }
+    return { value: item === 'dark' ? 'dark' : 'light', system: false };
 };

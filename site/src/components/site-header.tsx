@@ -1,11 +1,26 @@
 import { A } from 'solid-start';
 import useDarkMode from '~/hooks/use-dark-mode';
+import GearIcon from '~/icons/gear-icon';
 import MoonIcon from '~/icons/moon-icon';
 import SunIcon from '~/icons/sun-icon';
 import Link from './link';
 
 export default function SiteHeader() {
-    const [, setDarkMode] = useDarkMode();
+    const [getTheme, setThemeValue, clearTheme] = useDarkMode();
+
+    const handleSystemThemeClick = () => {
+        clearTheme();
+    };
+
+    const handleAppThemeClick = () => {
+        const theme = getTheme();
+        if (theme.value === 'dark') {
+            setThemeValue('light');
+        } else {
+            setThemeValue('dark');
+        }
+    };
+
     return (
         <header class="flex">
             <nav class="text-lg flex gap-3 flex-wrap xs:justify-start">
@@ -26,18 +41,15 @@ export default function SiteHeader() {
                 </A> */}
             </nav>
 
-            <div class="ml-auto flex gap-2 self-start mt-[7px]">
-                {/* <Show when={!getTheme().system}>
-                    <button
-                        onClick={() => {
-                            unsetTheme();
-                        }}
-                    >
-                        <GearIcon class="stroke-slate-500 dark:stroke-yellow-500 w-4 h-4" />
-                    </button>
-                </Show> */}
+            <div class="group ml-auto flex gap-2 self-start mt-[7px]">
+                <button
+                    style={{ display: getTheme().system ? 'none' : 'block' }}
+                    onClick={handleSystemThemeClick}
+                >
+                    <GearIcon class="invisible group-hover:visible stroke-slate-500 dark:stroke-yellow-500 w-4 h-4" />
+                </button>
 
-                <button onClick={() => setDarkMode(theme => !theme.dark)}>
+                <button onClick={handleAppThemeClick}>
                     <SunIcon class="dark-theme-button w-4 h-4" />
                     <MoonIcon class="light-theme-button w-4 h-4" />
                 </button>

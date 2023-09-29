@@ -1,13 +1,12 @@
 export default function DarkModeScript() {
-    const code = SCRIPT.trim();
+    const code = SCRIPT.replace('\n', '').trim();
     return <script>{code}</script>;
 }
 
 const SCRIPT = `
-let x='dark',
-l=sessionStorage,
-d=l.theme===x,
-s=(!('theme'in l)&&window.matchMedia('(prefers-color-scheme: dark)').matches),
-c=document.documentElement.classList;
-d||s?c.add(x):c.remove(x);
+let t=sessionStorage.getItem('theme'),
+v='dark',
+c=t===v||!t&&window.matchMedia('(prefers-color-scheme: dark)').matches,
+d=document.documentElement.classList;
+c?d.add(v):d.remove(v);
 `;
