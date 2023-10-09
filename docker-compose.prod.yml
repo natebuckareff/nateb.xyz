@@ -27,8 +27,10 @@ services:
         - PNPM_VERSION
         - NODE_MAJOR
         - NODE_MINOR
+        - VITE_DOMAIN
     environment:
       - ENV=development
+      - VITE_DOMAIN
       - SITE_SQLITE_FILE
     networks:
       - default
@@ -36,7 +38,7 @@ services:
     volumes:
       - site_data:/data
     labels:
-      caddy: ${DOMAIN}
+      caddy: ${VITE_DOMAIN}
       caddy.reverse_proxy: '{{upstreams 3000}}'
 
 networks:

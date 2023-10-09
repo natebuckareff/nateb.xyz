@@ -23,6 +23,7 @@ services:
     command: ['npm', 'run', 'dev']
     environment:
       - ENV=development
+      - VITE_DOMAIN
       - SITE_SQLITE_FILE
     networks:
       - default
@@ -30,7 +31,7 @@ services:
     volumes:
       - .:/app
     labels:
-      caddy: ${DOMAIN}
+      caddy: ${VITE_DOMAIN}
       caddy.reverse_proxy: '{{upstreams 80}}'
 
 networks:

@@ -11,6 +11,8 @@ COPY ./pnpm-lock.yaml .
 RUN pnpm fetch
 COPY . .
 RUN pnpm install --offline --frozen-lockfile
+ARG VITE_DOMAIN
+ENV VITE_DOMAIN=${VITE_DOMAIN}
 RUN pnpm run build
 RUN pnpm run bundle-server
 RUN pnpm run copy-assets

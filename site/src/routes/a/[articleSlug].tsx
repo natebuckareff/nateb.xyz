@@ -20,7 +20,7 @@ export function routeData({ params }: RouteDataArgs) {
 }
 
 export default function ArticlePage() {
-    const { getArticle } = useRouteData<typeof routeData>() as any;
+    const { getArticle } = useRouteData<typeof routeData>();
     return (
         <>
             {/* Cache for 1 hour */}

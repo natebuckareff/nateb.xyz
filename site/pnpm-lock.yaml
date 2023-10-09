@@ -64,6 +64,9 @@ devDependencies:
   typescript:
     specifier: ^5.2.2
     version: 5.2.2
+  user-agent-data-types:
+    specifier: ^0.4.2
+    version: 0.4.2
   vite:
     specifier: ^4.4.9
     version: 4.4.9(@types/node@20.7.1)
@@ -3613,6 +3616,10 @@ packages:
       browserslist: 4.22.0
       escalade: 3.1.1
       picocolors: 1.0.0
+
+  /user-agent-data-types@0.4.2:
+    resolution: {integrity: sha512-jXep3kO/dGNmDOkbDa8ccp4QArgxR4I76m3QVcJ1aOF0B9toc+YtSXtX5gLdDTZXyWlpQYQrABr6L1L2GZOghw==}
+    dev: true
 
   /util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
