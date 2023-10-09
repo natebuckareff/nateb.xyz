@@ -1,16 +1,50 @@
 services:
-  nateb.xyz:
-    image: nateb.xyz:latest
+  caddy_proxy:
+    image: lucaslorentz/caddy-docker-proxy:2.8-alpine
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+      - target: 443
+        published: 443
+        protocol: tcp
+    environment:
+      CADDY_INGRESS_NETWORKS: ${COMPOSE_PROJECT_NAME}_caddy_ingress
     networks:
       - caddy_ingress
-    environment:
-      - VITE_DEPLOY_COMMIT
-      - VITE_DEPLOY_TIMESTAMP
-      - ARTICLES_DIRNAME
-      - SQLITE_FILENAME
     volumes:
-      - ./data:/data
-      - ./articles:/articles
+      - /var/run/docker.sock:/var/run/docker.sock
+      - caddy_data:/data
+    restart: unless-stopped
+
+  site:
+    image: ${REGISTRY}/${REGISTRY_USERNAME}/${COMPOSE_PROJECT_NAME}-site:${BUILD_ID}
+    build:
+      context: ./site
+      dockerfile: dockerfile.prod
+      args:
+        - ENV=production
+        - PNPM_VERSION
+        - NODE_MAJOR
+        - NODE_MINOR
+        - VITE_DOMAIN
+    environment:
+      - ENV=development
+      - VITE_DOMAIN
+      - SITE_SQLITE_FILE
+    networks:
+      - default
+      - caddy_ingress
+    volumes:
+      - site_data:/data
     labels:
-      caddy: nateb.xyz
+      caddy: ${VITE_DOMAIN}
       caddy.reverse_proxy: '{{upstreams 3000}}'
+
+networks:
+  caddy_ingress:
+    driver: bridge
+
+volumes:
+  caddy_data: {}
+  site_data: {}

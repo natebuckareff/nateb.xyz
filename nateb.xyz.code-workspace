@@ -1,0 +1,10 @@
+{
+    "folders": [
+        { "name": "root", "path": ".root" },
+        { "name": "scripts", "path": "scripts" },
+        { "name": "site", "path": "site" }
+    ],
+    "settings": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
+}

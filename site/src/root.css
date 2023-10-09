@@ -1,0 +1,204 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+}
+
+html {
+    @apply text-slate-800;
+}
+html.dark {
+    @apply bg-gray-950 text-slate-300;
+}
+
+html .dark-theme-button {
+    display: none;
+}
+html .light-theme-button {
+    display: block;
+    @apply fill-slate-400 stroke-slate-400;
+}
+html.dark .dark-theme-button {
+    display: block;
+    @apply stroke-yellow-400;
+}
+html.dark .light-theme-button {
+    display: none;
+}
+
+/* .mask-top-left {
+    box-sizing: border-box;
+    width: 0;
+    height: 0;
+    border-width: 8px;
+    border-color: transparent white white transparent;
+}
+
+.mask-bottom-right {
+    box-sizing: border-box;
+    width: 0;
+    height: 0;
+    border-width: 8px;
+    border-color: white transparent transparent white;
+} */
+
+.x-link {
+    @apply text-red-700 underline hover:bg-red-700 hover:text-white hover:no-underline;
+}
+html.dark .x-link {
+    @apply text-red-500 underline hover:bg-red-500 hover:text-red-50 hover:no-underline;
+}
+
+.x-article {
+    h1,
+    h2,
+    h3 {
+        a {
+            @apply text-slate-800;
+            @apply no-underline hover:bg-transparent hover:text-red-700 hover:underline;
+        }
+    }
+}
+
+html.dark .x-article {
+    h1,
+    h2,
+    h3 {
+        a {
+            @apply text-slate-300;
+            @apply no-underline hover:bg-transparent hover:text-red-500 hover:underline;
+        }
+    }
+}
+
+.x-article-card.x-article {
+    @apply mx-4 my-5 text-base sm:text-lg;
+
+    h1 {
+        @apply text-3xl sm:text-2xl font-bold;
+    }
+
+    h2 {
+        @apply text-2xl sm:text-xl mt-8 font-bold;
+    }
+
+    h3 {
+        @apply text-xl sm:text-lg mt-8 font-bold;
+    }
+}
+
+.x-article a {
+    @apply text-red-700 underline hover:bg-red-700 hover:text-white hover:no-underline;
+}
+html.dark .x-article a {
+    @apply text-red-500 underline hover:bg-red-500 hover:text-red-50 hover:no-underline;
+}
+
+.x-article {
+    @apply my-8 text-lg sm:text-xl;
+}
+
+.x-article h1 {
+    @apply text-5xl sm:text-4xl font-bold;
+}
+
+.x-article h1 + .x-subtitle {
+    @apply flex justify-between;
+}
+
+.x-article h2 {
+    @apply text-4xl sm:text-3xl mt-8 font-bold;
+}
+
+.x-article h3 {
+    @apply text-3xl sm:text-2xl mt-8 font-bold;
+}
+
+.x-article .x-subtitle {
+    @apply text-sm sm:text-base text-slate-500;
+}
+.x-article .x-subtitle small {
+    font-size: 90%;
+}
+
+.x-article p {
+    @apply my-7 leading-8;
+}
+
+.x-article p:has(+ ul) {
+    @apply mb-0;
+}
+
+.x-article p + ul {
+    @apply mt-0;
+}
+
+.x-article ul {
+    @apply my-5;
+}
+
+.x-article .x-article ul p {
+    @apply my-0;
+}
+
+.x-article ul li:has(> input[checked]) {
+    @apply line-through;
+}
+
+.x-article blockquote {
+    @apply my-5 pl-5 border-l-4 border-l-gray-200;
+}
+html.dark .x-article blockquote {
+    @apply border-l-slate-700;
+}
+
+.x-article img {
+    @apply mx-auto;
+}
+html.dark .x-article img {
+    @apply invert;
+}
+
+.x-article code {
+    @apply bg-gray-200 text-gray-600 p-1 rounded-md text-base sm:text-lg;
+}
+html.dark .x-article code {
+    @apply bg-gray-900 text-gray-300;
+}
+
+.x-article pre > code {
+    @apply p-0;
+}
+
+.x-article pre {
+    @apply my-2 bg-gray-200 text-gray-600 p-2 rounded-md overflow-x-scroll;
+}
+html.dark .x-article pre {
+    @apply bg-gray-900 text-gray-300;
+}
+
+.x-article pre::-webkit-scrollbar {
+    @apply h-[5px] sm:h-[10px];
+}
+.x-article pre::-webkit-scrollbar-track {
+    @apply bg-transparent;
+}
+.x-article pre::-webkit-scrollbar-thumb {
+    @apply bg-gray-400 rounded-md;
+}
+html.dark .x-article pre::-webkit-scrollbar-thumb {
+    @apply bg-gray-700 rounded-md;
+}
+
+.x-article ul {
+    @apply list-disc list-outside ml-[24px];
+}
+
+.x-article hr {
+    @apply my-9 border-t border-t-slate-400;
+}
