@@ -31,22 +31,6 @@ html.dark .light-theme-button {
     display: none;
 }
 
-/* .mask-top-left {
-    box-sizing: border-box;
-    width: 0;
-    height: 0;
-    border-width: 8px;
-    border-color: transparent white white transparent;
-}
-
-.mask-bottom-right {
-    box-sizing: border-box;
-    width: 0;
-    height: 0;
-    border-width: 8px;
-    border-color: white transparent transparent white;
-} */
-
 .x-link {
     @apply text-red-700 underline hover:bg-red-700 hover:text-white hover:no-underline;
 }
@@ -77,7 +61,7 @@ html.dark .x-article {
 }
 
 .x-article-card.x-article {
-    @apply mx-4 my-5 text-base sm:text-lg;
+    @apply m-4 text-base sm:text-lg;
 
     h1 {
         @apply text-3xl sm:text-2xl font-bold;
@@ -89,6 +73,10 @@ html.dark .x-article {
 
     h3 {
         @apply text-xl sm:text-lg mt-8 font-bold;
+    }
+
+    p {
+        @apply my-4;
     }
 }
 
