@@ -16,8 +16,6 @@ export function createSqliteAdapter(config: SqliteAdapterConfig): ModelAdapter {
     db.pragma('journal_mode = WAL');
 
     db.exec(`
-        DROP TABLE IF EXISTS ${config.table};
-
         CREATE TABLE IF NOT EXISTS ${config.table} (
             id                  INTEGER PRIMARY KEY,
             sid                 TEXT,
