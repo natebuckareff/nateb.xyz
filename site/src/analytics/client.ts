@@ -1,3 +1,5 @@
+/// <reference types="user-agent-data-types" />
+
 import { PageEvent, PageLeftEvent, PageLoadEvent, PageNavigateEvent } from './event';
 import { encodeQueryParams } from './search-params';
 import { getURLPathname } from './util';
