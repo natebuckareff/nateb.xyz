@@ -105,9 +105,14 @@ function parseArticle(slug: string, modified: Date, text: string): Article {
             published = new Date(meta.published);
         }
 
+        let enabledHeadingRenderer = false;
+
         marked.use({
             renderer: {
                 heading(text, level) {
+                    if (!enabledHeadingRenderer) {
+                        return `<h${level}>${text}</h${level}>`;
+                    }
                     const name = getEscapedTitle(text);
                     let after = '';
                     if (level === 1) {
@@ -117,6 +122,8 @@ function parseArticle(slug: string, modified: Date, text: string): Article {
                 },
             },
         });
+
+        enabledHeadingRenderer = true;
 
         const html = marked(content, {
             hooks: {
@@ -164,6 +171,8 @@ function parseArticle(slug: string, modified: Date, text: string): Article {
                 },
             },
         });
+
+        enabledHeadingRenderer = false;
 
         return {
             slug,
