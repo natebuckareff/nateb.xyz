@@ -3,7 +3,7 @@ import { AlertCircleIcon } from '~/icons/alert-circle-icon';
 import CAIcon from '~/icons/ca-icon';
 
 export default function HireMeCallout(props: { class?: string }) {
-    const cls = `flex items-center gap-4 border border-red-200 bg-red-50 text-red-900 dark:border-slate-500 dark:bg-slate-900 dark:text-white px-4 py-3 rounded-lg text-sm sm:text-base ${props.class}`;
+    const cls = `flex items-center gap-4 border border-sky-200 bg-sky-50 text-sky-900 dark:border-slate-500 dark:bg-slate-900 dark:text-white px-4 py-3 rounded-lg text-sm sm:text-base ${props.class}`;
     return (
         <div class={cls}>
             <div>
