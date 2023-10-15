@@ -1,84 +1,69 @@
-import { onMount } from 'solid-js';
+import { For, createSignal, onMount } from 'solid-js';
 
-/*
-TODO:
-- Histogram
-    - User defines an `initial` function to initialize bins
-    - User defines `group` function to identify bins
-    - User defines some `reduce` function to aggregate
-- X extent is just the first and last bins
-- Y extent is the min and max of the range
-- X axis divides bins evenly and then iterates over them
-- Y axis divides range min and max evenly and then iterates them
-- Axis
-    - The number of X and Y divisions is based on pixel sizes
-    - User provides pixel width of X axis labels
-    - User provides pixel height of Y axis labels
-    - User provides render function for labels
-- Mouse
-    - Convert from mouse position to nearest bin
-
-- Histogram takes non-linear data and bins it
-- Linear data can then be contiguously iterated over
-*/
-
-interface Histogram {
-    buckets: {
-        label: string;
-        x: number;
-        y: number;
-        count: number;
-    }[];
-    range: {
-        min: number;
-        max: number;
-    };
-}
-
-export interface CanvasGraphProps<T> {
+export interface GraphConfig<T, Bin> {
     data: T[];
-    getX: (row: T) => number;
-    getY: (row: T) => number;
-    getLabel: (row: T) => string;
+    group: (value: T) => number;
+    fill: (x: number) => T;
+    initial: (x: number, value: T) => Bin;
+    reduce: (x: number, bin: Bin, value: T) => void;
+    range: (x: number, bin: Bin) => number;
 }
 
-export default function CanvasGraph<T>(props: CanvasGraphProps<T>) {
+export class Graph<T, Bin> {
+    private _bins: Bin[] = [];
+
+    constructor(public readonly config: GraphConfig<T, Bin>) {}
+
+    get(x: number): Bin {
+        let bin = this._bins[x];
+        if (!bin) {
+            const value = this.config.fill(x);
+            bin = this.config.initial(x, value);
+            this._bins[x] = bin;
+        }
+        return bin;
+    }
+
+    group() {
+        const rect = {
+            x: { min: +Infinity, max: -Infinity },
+            y: { min: +Infinity, max: -Infinity },
+        };
+
+        for (const value of this.config.data) {
+            const x = this.config.group(value);
+
+            let bin = this._bins[x];
+
+            if (!bin) {
+                bin = this.config.initial(x, value);
+                this._bins[x] = bin;
+
+                const y = this.config.range(x, bin);
+                rect.x.min = Math.min(rect.x.min, x);
+                rect.x.max = Math.max(rect.x.max, x);
+                rect.y.min = Math.min(rect.y.min, y);
+                rect.y.max = Math.max(rect.y.max, y);
+                continue;
+            }
+
+            this.config.reduce(x, bin, value);
+        }
+
+        return rect;
+    }
+}
+
+export interface CanvasGraphProps<T, Bin> {
+    graph: Graph<T, Bin>;
+}
+
+export default function CanvasGraph<T, Bin>(props: CanvasGraphProps<T, Bin>) {
     let container: HTMLDivElement;
     let canvas: HTMLCanvasElement;
 
-    const getHistogram = (scale: number) => {
-        const histogram: Histogram = {
-            buckets: [],
-            range: { min: 0, max: 0 },
-        };
-        const { buckets, range } = histogram;
-        const start = Math.floor(props.getX(props.data[0]) / scale);
-
-        for (let i = 0; i < props.data.length; ++i) {
-            const label = props.getLabel(props.data[i]);
-            const x = Math.floor(props.getX(props.data[i]) / scale);
-            const y = props.getY(props.data[i]);
-            const index = x - start;
-            const bucket = (buckets[index] ??= { label, x, y: 0, count: 1 });
-            bucket.y += y;
-            // bucket.count += 1;b
-        }
-
-        range.min = buckets[0].y / buckets[0].count;
-        range.max = buckets[0].y / buckets[0].count;
-
-        for (let i = 1; i < buckets.length; ++i) {
-            if (buckets[i] === undefined) {
-                buckets[i] = { label: '???', x: start + i, y: 0, count: 0 };
-            } else {
-                const value = buckets[i].y / buckets[i].count;
-                range.min = Math.min(range.min, value);
-                range.max = Math.max(range.max, value);
-            }
-        }
-
-        return histogram;
-    };
+    const [getXAxisRange, setXAxisRange] = createSignal<{ x: number; y: number; label: string }[]>();
+    const [getYAxisRange, setYAxisRange] = createSignal<{ x: number; y: number; label: string }[]>();
 
     onMount(() => {
         const ctx = canvas.getContext('2d');
@@ -88,59 +73,148 @@ export default function CanvasGraph<T>(props: CanvasGraphProps<T>) {
         canvas.width = rect.width;
         canvas.height = rect.height;
 
-        console.log({
-            w: canvas.width,
-            n: props.data.length,
-            r: canvas.width / props.data.length,
-        });
-
+        ctx.fillStyle = 'transparent';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         const region = {
-            x: 10,
-            y: 10,
-            width: canvas.width,
-            height: canvas.height - 150,
+            x: 0,
+            y: 0,
+            width: canvas.width - 0,
+            height: canvas.height - 0,
         };
 
-        const histogram = getHistogram(1);
-        const { buckets, range } = histogram;
-        const strideX = region.width / (buckets.length + 1);
+        const gridX = 24;
+        const gridY = 40;
 
-        ctx.beginPath();
-        for (let i = 0; i < buckets.length; ++i) {
-            const { x, y, height } = region;
-            const bucket = histogram.buckets[i];
-            const dataY = bucket ? bucket.y / bucket.count : 0;
-            const screenY = 1 - ((dataY - range.min) / (range.max - range.min)) * height + height + y;
-            const screenX = x + strideX * (i + 1);
-            if (i === 0) {
-                ctx.moveTo(screenX, screenY);
-            } else {
-                ctx.lineTo(screenX, screenY);
+        const range = props.graph.group();
+        range.x.min = Math.floor(range.x.min / gridX) * gridX + gridX;
+        range.x.max = Math.ceil(range.x.max / gridX) * gridX - gridX;
+        range.y.min = Math.floor(range.y.min / gridY) * gridY;
+        range.y.max = Math.ceil(range.y.max / gridY) * gridY + gridY;
+
+        const extentX = Math.abs(range.x.max - range.x.min);
+        const extentY = Math.abs(range.y.max - range.y.min);
+
+        function transform(x: number, y: number) {
+            const normX = (x - range.x.min) / extentX;
+            const normY = (y - range.y.min) / extentY;
+            const rx = region.x;
+            const ry = region.y;
+            const rw = region.width;
+            const rh = region.height;
+            return {
+                x: rx + normX * rw,
+                y: canvas.height - (ry + normY * rh),
+            };
+        }
+
+        const gridExtentX = Math.floor(extentX / gridX);
+        const xAxisRange: { x: number; y: number; label: string }[] = [];
+        if (Number.isInteger(gridExtentX)) {
+            for (let i = 0; i < gridExtentX; ++i) {
+                const x = range.x.min + i * gridX;
+                const { x: screenX } = transform(x, 0);
+
+                if (i >= 1 && i < gridExtentX) {
+                    ctx.beginPath();
+                    ctx.moveTo(screenX, canvas.height - region.y);
+                    ctx.lineTo(screenX, canvas.height - (region.y + region.height));
+                    ctx.strokeStyle = '#aaa';
+                    ctx.stroke();
+                }
+
+                ctx.beginPath();
+                ctx.moveTo(screenX, canvas.height - region.y + 8);
+                ctx.lineTo(screenX, canvas.height - (region.y + region.height));
+                ctx.strokeStyle = '#aaa';
+                ctx.stroke();
+
+                {
+                    const { x: screenX } = transform(x, 0);
+                    xAxisRange.push({ x: screenX, y: canvas.height - region.y, label: x + '' });
+                }
             }
         }
-        ctx.strokeStyle = 'rgb(255,0,0)';
+        setXAxisRange(xAxisRange);
+
+        const gridExtentY = Math.floor(extentY / gridY);
+        const yAxisRange: { x: number; y: number; label: string }[] = [];
+        if (Number.isInteger(gridExtentY)) {
+            for (let i = 0; i <= gridExtentY; ++i) {
+                const y = range.y.min + i * gridY;
+                const { y: screenY } = transform(0, y);
+
+                if (i >= 1 && i < gridExtentY) {
+                    ctx.beginPath();
+                    ctx.moveTo(region.x, screenY);
+                    ctx.lineTo(region.x + region.width, screenY);
+                    ctx.strokeStyle = '#aaa';
+                    ctx.stroke();
+                }
+
+                ctx.beginPath();
+                ctx.moveTo(region.x - 8, screenY);
+                ctx.lineTo(region.x, screenY);
+                ctx.strokeStyle = '#aaa';
+                ctx.stroke();
+
+                {
+                    const { y: screenY } = transform(0, y);
+                    yAxisRange.push({ x: region.x, y: screenY, label: y + '' });
+                }
+            }
+        }
+        setYAxisRange(yAxisRange);
+
+        ctx.beginPath();
+        ctx.lineJoin = 'round';
+        ctx.moveTo(region.x, canvas.height - region.y);
+        for (let x = range.x.min; x <= range.x.max; ++x) {
+            const bin = props.graph.get(x);
+            const y = props.graph.config.range(x, bin);
+            const { x: screenX, y: screenY } = transform(x, y);
+            ctx.lineTo(screenX, screenY);
+        }
+        ctx.lineTo(region.x + region.width, canvas.height - region.y);
+        ctx.lineTo(region.x, canvas.height - region.y);
+        ctx.strokeStyle = 'black';
+        ctx.fillStyle = 'black';
+        ctx.fill();
         ctx.stroke();
 
-        for (let i = 0; i < buckets.length; ++i) {
-            const screenX = region.x + strideX * (i + 1);
-            const screenY = region.y + region.height + 20;
-
-            ctx.beginPath();
-            ctx.save();
-            ctx.translate(screenX - 8, screenY);
-            ctx.rotate(Math.PI / 4);
-            ctx.font = '12px monospace';
-            ctx.fillStyle = 'rgb(255,0,0)';
-            ctx.fillText(buckets[i].label, 0, 0);
-            ctx.restore();
-        }
+        ctx.beginPath();
+        const rx = region.x;
+        const ry = canvas.height - (region.y + region.height);
+        ctx.rect(rx, ry, region.width, region.height);
+        ctx.strokeStyle = '#aaa';
+        ctx.stroke();
     });
 
     return (
-        <div ref={container!} class="border border-red-500 border-opacity-20">
+        <div ref={container!} class="relative border border-blue-500">
             <canvas ref={canvas!} class="w-full h-[40vh]" />
+
+            <For each={getXAxisRange()}>
+                {({ x, y, label }) => (
+                    <div
+                        class="absolute pt-2 -translate-x-1/2 text-xs bg-red-500"
+                        style={{ left: `${x}px`, top: `${y}px` }}
+                    >
+                        {label}
+                    </div>
+                )}
+            </For>
+
+            <For each={getYAxisRange()}>
+                {({ x, y, label }) => (
+                    <div
+                        class="absolute pr-3 pb-[2px] -translate-x-full -translate-y-1/2 text-xs bg-green-500"
+                        style={{ left: `${x}px`, top: `${y}px` }}
+                    >
+                        {label}
+                    </div>
+                )}
+            </For>
         </div>
     );
 }

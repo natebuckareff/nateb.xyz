@@ -1,4 +1,4 @@
-import CanvasGraph from '~/components/canvas-graph';
+import CanvasGraph, { Graph } from '~/components/canvas-graph';
 import SiteHeader from '~/components/site-header';
 import SiteLayout from '~/components/site-layout';
 
@@ -206,17 +206,23 @@ const data = [
 ];
 
 export default function AnalyticsPage() {
+    const graph = new Graph({
+        data,
+        group: x => x.hour,
+        fill: x => ({ timestamp: 0, hour: x, date: '', pageviews: 0 }),
+        initial: (_, value) => ({ hour: value.hour, pageviews: value.pageviews }),
+        reduce: (_, bin, value) => {
+            bin.pageviews += value.pageviews;
+        },
+        range: (_, bin) => bin.pageviews,
+    });
+
     return (
         <>
             <SiteLayout>
                 <SiteHeader />
                 <div class="my-8">
-                    <CanvasGraph
-                        data={data}
-                        getX={row => row.hour}
-                        getY={row => row.pageviews}
-                        getLabel={row => row.date}
-                    />
+                    <CanvasGraph graph={graph} />
                 </div>
             </SiteLayout>
         </>
