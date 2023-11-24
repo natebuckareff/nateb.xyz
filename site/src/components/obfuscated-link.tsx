@@ -4,9 +4,9 @@ import { Dynamic } from 'solid-js/web';
 export interface ObfuscatedLinkProps {
     as?: (props: JSX.HTMLElementTags['a']) => JSX.Element;
     class?: string;
-    key: number[];
     href: string;
     text: string;
+    secretKey: number[];
     autohide?: boolean;
 }
 
@@ -15,13 +15,13 @@ export default function ObfuscatedLink(props: ObfuscatedLinkProps) {
 
     onMount(() => {
         if (!props.autohide) {
-            ref.setAttribute('href', decrypt(props.href, props.key));
+            ref.setAttribute('href', decrypt(props.href, props.secretKey));
         }
-        ref.innerText = decrypt(props.text, props.key).split('').reverse().join('');
+        ref.innerText = decrypt(props.text, props.secretKey).split('').reverse().join('');
     });
 
     const onMouseEnter: JSX.EventHandler<HTMLAnchorElement, MouseEvent> = e => {
-        e.currentTarget.setAttribute('href', decrypt(props.href, props.key));
+        e.currentTarget.setAttribute('href', decrypt(props.href, props.secretKey));
     };
 
     const onMouseLeave: JSX.EventHandler<HTMLAnchorElement, MouseEvent> = e => {

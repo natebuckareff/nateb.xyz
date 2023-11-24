@@ -12,11 +12,13 @@
         "copy-assets": "cp -r dist/public bundle && cp -r src/articles bundle"
     },
     "devDependencies": {
+        "@mdx-js/rollup": "^3.0.0",
         "@types/better-sqlite3": "^7.6.5",
         "@vercel/ncc": "^0.38.0",
         "autoprefixer": "^10.4.16",
         "postcss": "^8.4.31",
         "rollup-plugin-visualizer": "^5.9.2",
+        "solid-jsx": "^1.1.4",
         "solid-start-node": "^0.3.6",
         "tailwindcss": "^3.3.3",
         "typescript": "^5.2.2",
