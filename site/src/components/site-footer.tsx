@@ -5,7 +5,11 @@ const START_YEAR = 2022;
 const CURRENT_YEAR = new Date().getFullYear();
 const COPYRIGHT_YEAR = `${START_YEAR}-${CURRENT_YEAR}`;
 
-export default function SiteFooter() {
+export interface SiteFooterProps {
+    class?: string;
+}
+
+export default function SiteFooter(props: SiteFooterProps) {
     const [getScrollable, setScrollable] = createSignal(false);
 
     onMount(() => {
@@ -15,7 +19,7 @@ export default function SiteFooter() {
     });
 
     return (
-        <footer class="flex justify-between text-slate-500 text-sm sm:text-base">
+        <footer class={props.class + ' flex justify-between text-slate-500 text-sm sm:text-base'}>
             <div class="flex flex-wrap gap-1">
                 <span>Copyright {COPYRIGHT_YEAR} Nate B</span>
                 <span>(Nathaniel Buckareff)</span>

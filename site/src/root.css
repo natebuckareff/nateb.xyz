@@ -12,8 +12,10 @@ body {
 html {
     @apply text-slate-800;
 }
-html.dark {
-    @apply bg-gray-950 text-slate-300;
+@media not print {
+    html.dark {
+        @apply bg-gray-950 text-slate-300;
+    }
 }
 
 html .dark-theme-button {
@@ -34,8 +36,19 @@ html.dark .light-theme-button {
 .x-link {
     @apply text-red-700 underline hover:bg-red-700 hover:text-white hover:no-underline;
 }
-html.dark .x-link {
-    @apply text-red-500 underline hover:bg-red-500 hover:text-red-50 hover:no-underline;
+@media not print {
+    html.dark .x-link {
+        @apply text-red-500 underline hover:bg-red-500 hover:text-red-50 hover:no-underline;
+    }
+}
+
+.x-button {
+    @apply text-red-700 border-red-700 hover:bg-red-700 hover:text-white;
+}
+@media not print {
+    html.dark .x-button {
+        @apply text-red-500 border-red-500 hover:bg-red-500 hover:text-red-50 hover:no-underline;
+    }
 }
 
 .x-article {
@@ -58,6 +71,10 @@ html.dark .x-article {
             @apply no-underline hover:bg-transparent hover:text-red-500 hover:underline;
         }
     }
+}
+
+@page {
+    margin: 64px 90px;
 }
 
 .x-article-card.x-article {
@@ -83,16 +100,18 @@ html.dark .x-article {
 .x-article a {
     @apply text-red-700 underline hover:bg-red-700 hover:text-white hover:no-underline;
 }
-html.dark .x-article a {
-    @apply text-red-500 underline hover:bg-red-500 hover:text-red-50 hover:no-underline;
+@media not print {
+    html.dark .x-article a {
+        @apply text-red-500 underline hover:bg-red-500 hover:text-red-50 hover:no-underline;
+    }
 }
 
 .x-article {
-    @apply my-8 text-lg sm:text-xl;
+    @apply my-8 print:my-0 text-lg sm:text-xl print:text-sm print:sm:text-base;
 }
 
 .x-article h1 {
-    @apply text-5xl sm:text-4xl font-bold;
+    @apply text-5xl sm:text-4xl font-bold print:text-4xl print:sm:text-3xl;
 }
 
 .x-article h1 + .x-subtitle {
@@ -100,11 +119,11 @@ html.dark .x-article a {
 }
 
 .x-article h2 {
-    @apply text-4xl sm:text-3xl mt-8 font-bold;
+    @apply text-4xl sm:text-3xl mt-8 font-bold print:text-3xl print:sm:text-2xl;
 }
 
 .x-article h3 {
-    @apply text-3xl sm:text-2xl mt-8 font-bold;
+    @apply text-3xl sm:text-2xl mt-8 font-bold print:text-2xl print:sm:text-xl;
 }
 
 .x-article .x-subtitle {
@@ -115,7 +134,7 @@ html.dark .x-article a {
 }
 
 .x-article p {
-    @apply my-7 leading-8;
+    @apply my-7 print:my-3 leading-8 print:leading-7;
 }
 
 .x-article p:has(+ ul) {
@@ -141,22 +160,28 @@ html.dark .x-article a {
 .x-article blockquote {
     @apply my-5 pl-5 border-l-4 border-l-gray-200;
 }
-html.dark .x-article blockquote {
-    @apply border-l-slate-700;
+@media not print {
+    html.dark .x-article blockquote {
+        @apply border-l-slate-700;
+    }
 }
 
 .x-article img {
     @apply mx-auto;
 }
-html.dark .x-article img {
-    @apply invert;
+@media not print {
+    html.dark .x-article img {
+        @apply invert;
+    }
 }
 
 .x-article code {
     @apply bg-gray-200 text-gray-600 p-1 rounded-md text-base sm:text-lg;
 }
-html.dark .x-article code {
-    @apply bg-gray-900 text-gray-300;
+@media not print {
+    html.dark .x-article code {
+        @apply bg-gray-900 text-gray-300;
+    }
 }
 
 .x-article pre > code {
@@ -166,8 +191,10 @@ html.dark .x-article code {
 .x-article pre {
     @apply my-2 bg-gray-200 text-gray-600 p-2 rounded-md overflow-x-scroll;
 }
-html.dark .x-article pre {
-    @apply bg-gray-900 text-gray-300;
+@media not print {
+    html.dark .x-article pre {
+        @apply bg-gray-900 text-gray-300;
+    }
 }
 
 .x-article pre::-webkit-scrollbar {
@@ -179,8 +206,10 @@ html.dark .x-article pre {
 .x-article pre::-webkit-scrollbar-thumb {
     @apply bg-gray-400 rounded-md;
 }
-html.dark .x-article pre::-webkit-scrollbar-thumb {
-    @apply bg-gray-700 rounded-md;
+@media not print {
+    html.dark .x-article pre::-webkit-scrollbar-thumb {
+        @apply bg-gray-700 rounded-md;
+    }
 }
 
 .x-article ul {

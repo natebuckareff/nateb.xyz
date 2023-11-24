@@ -3,9 +3,13 @@ import HireMeCallout from './hire-me-callout';
 import Link from './link';
 import ThemeControls from './theme-controls';
 
-export default function SiteHeader() {
+export interface SiteHeaderProps {
+    class?: string;
+}
+
+export default function SiteHeader(props: SiteHeaderProps) {
     return (
-        <div>
+        <div class={props.class}>
             <header class="flex items-center">
                 <nav class="text-lg flex gap-3 flex-wrap xs:justify-start">
                     <A class="x-link" href="/">
