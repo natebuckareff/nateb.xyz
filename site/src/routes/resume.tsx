@@ -1,4 +1,6 @@
+import differenceInMonths from 'date-fns/differenceInMonths';
 import { marked } from 'marked';
+import { onMount } from 'solid-js';
 import { createRouteData, useRouteData } from 'solid-start';
 import { HttpHeader } from 'solid-start/server';
 import ObfuscatedLink from '~/components/obfuscated-link';
@@ -25,6 +27,20 @@ export default function ResumePage() {
         window.print();
         document.title = originalTitle;
     };
+
+    onMount(() => {
+        const els = document.getElementsByClassName('x-date-range');
+        if (els.length === 0) return;
+        const el = els[0] as HTMLDivElement;
+
+        const startDate = new Date(el.dataset.date ?? 0);
+        const currentDate = new Date();
+        const difference = differenceInMonths(currentDate, startDate);
+        const months = difference % 12;
+        const years = Math.floor(difference / 12);
+
+        el.innerHTML = `${years} year${years > 1 ? 's' : ''}, ${months} month${months > 1 ? 's' : ''}`;
+    });
 
     return (
         <>

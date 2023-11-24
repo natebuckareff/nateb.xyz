@@ -1,9 +1,9 @@
-# Resume
+# Nate Buckareff
 
 ## Web Development Consultant
 
 <div class="flex justify-between text-slate-500">
-    <div>2 years, 6 months</div>
+    <div class="x-date-range" data-date="2021-04-1"></div>
     <div>April 2021 - Present</div>
 </div>
 
@@ -11,9 +11,9 @@ Working as a full stack web development consultant.
 
 ## Senior Developer
 
-<div class="flex flex-col gap-2">
-    <div class="font-bold text-slate-600">MLD Solutions Inc.</div>
-    <div class="flex justify-between text-slate-500">
+<div class="flex flex-col gap-2 text-slate-500">
+    <div class="font-bold">MLD Solutions Inc.</div>
+    <div class="flex justify-between">
         <div>2 years, 3 months</div>
         <div>Jan 2019 - April 2021</div>
     </div>
@@ -80,7 +80,7 @@ Provided phone support to clients and worked with them to resolve time-sensitive
 
 ## Junior Developer
 
-<div class="flex flex-col gap-2">
+<div class="flex flex-col gap-2 text-slate-500">
     <div class="font-bold">MLD Solutions Inc.</div>
     <div class="flex justify-between">
         <div>1 year, 4 months</div>

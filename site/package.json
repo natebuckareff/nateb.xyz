@@ -28,6 +28,7 @@
         "@solidjs/router": "^0.8.3",
         "@types/node": "^20.8.4",
         "better-sqlite3": "^9.0.0",
+        "date-fns": "^2.30.0",
         "marked": "^9.1.0",
         "node-html-parser": "^6.1.10",
         "solid-js": "^1.8.1",
