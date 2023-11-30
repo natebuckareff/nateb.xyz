@@ -9,7 +9,7 @@ export default function Root() {
     return (
         <Html lang="en">
             <Head>
-                <Title>nateb.xyz</Title>
+                <Title>Nate Buckareff</Title>
                 <Meta charset="utf-8" />
                 <Meta name="viewport" content="width=device-width, initial-scale=1" />
                 <DarkModeScript />

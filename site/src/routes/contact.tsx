@@ -1,3 +1,4 @@
+import { Title } from 'solid-start';
 import { HttpHeader } from 'solid-start/server';
 import ObfuscatedLink from '~/components/obfuscated-link';
 import SiteHeader from '~/components/site-header';
@@ -10,6 +11,8 @@ export default function ContactPage() {
         <>
             {/* Cache for 1 hour */}
             <HttpHeader name="Cache-Control" value="public, max-age=3600, stale-if-error=60" />
+
+            <Title>Contact - Nate Buckareff</Title>
 
             <SiteLayout>
                 <SiteHeader />

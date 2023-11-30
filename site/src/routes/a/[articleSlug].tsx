@@ -1,5 +1,5 @@
 import { Show } from 'solid-js';
-import { ErrorBoundary, RouteDataArgs, ServerError, useRouteData } from 'solid-start';
+import { ErrorBoundary, RouteDataArgs, ServerError, Title, useRouteData } from 'solid-start';
 import { HttpHeader, HttpStatusCode, createServerData$ } from 'solid-start/server';
 import { readArticle } from '~/article';
 import HireMeCallout from '~/components/hire-me-callout';
@@ -26,6 +26,8 @@ export default function ArticlePage() {
         <>
             {/* Cache for 1 hour */}
             <HttpHeader name="Cache-Control" value="public, max-age=3600, stale-if-error=60" />
+
+            <Show when={getArticle()?.title}>{title => <Title>{title()} - Nate Buckareff</Title>}</Show>
 
             <SiteLayout>
                 <SiteHeader />

@@ -1,3 +1,4 @@
+import { Title } from 'solid-start';
 import { HttpHeader } from 'solid-start/server';
 import SiteHeader from '~/components/site-header';
 import SiteLayout from '~/components/site-layout';
@@ -18,6 +19,8 @@ export default function ResumePage() {
         <>
             {/* Cache for 1 hour */}
             <HttpHeader name="Cache-Control" value="public, max-age=3600, stale-if-error=60" />
+
+            <Title>Resume - Nate Buckareff</Title>
 
             <SiteLayout classFooter="print:hidden">
                 <SiteHeader class="print:hidden" />
