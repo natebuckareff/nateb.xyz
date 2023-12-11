@@ -43,7 +43,7 @@ There will be four QEMU VMs in their own private `/24` network. Three will be ru
 
 > I'm using QEMU, but you could use any Linux virtualization software. VirtualBox or VMWare would work. There's also [libvirt](https://libvirt.org/) which abstracts over different virtualization backends (including QEMU) if that's your thing.
 
-The private network is acting like an emulated [VPC](https://en.wikipedia.org/wiki/Virtual_private_cloud). There is an `iptables` rule to allow the nodes to reach the external network.
+The private network is acting like an emulated [VPC](https://en.wikipedia.org/wiki/Virtual_private_cloud). There are `iptables` rules that allow the nodes to reach the external network.
 
 Each node is configured with a predefined MAC address. `dnsmasq` will then use the MAC address of a client to assign the IP address configured for that MAC.
 
@@ -161,7 +161,7 @@ There are four core networking components:
 1. The bridge device `br0` acts as a virtual switch that our VMs are all plugged into, forming a virtual LAN.
 2. Each VM has its own TAP device connected to it. The TAP device is then "plugged into" the bridge and forwards packets across the VM's virtual network interface card.
 4. A `dnsmasq` daemon running as a DHCP server assigns IP addresses to the nodes.
-5. An `iptables` rule that makes `br0` act like a NAT router, allowing nodes to access the internet.
+5. `iptables` rules that make `br0` act like a NAT router, allowing nodes to access the internet.
 
 Let's create the virtual bridge device using the `ip` command, assign it the IP address `10.0.0.0/24`, and bring it online:
 
@@ -270,22 +270,22 @@ echo $! > dnsmasq.pid
 
 This will spawn `dnsmasq` into the background, redirect all of its output to the file `dnsmasq.log`, and write its PID to `dnsmasq.pid`. We can later use the PID to `kill` the the daemon when we're finished.
 
-The last thing we need to do is apply an `iptables` rule so that our nodes will be able to reach the internet:
+The last thing we need to do is append three `iptables` rules so that the nodes will be able to reach the internet:
 
 ```shell
-sudo iptables \
-	-t nat -A POSTROUTING ! -o br0 \
-	--source 10.0.0.0/24 -j MASQUERADE
+sudo iptables -t nat -A POSTROUTING ! -o br0 --source 10.0.0.0/24 -j MASQUERADE
+sudo iptables -A FORWARD -i br0 -j ACCEPT
+sudo iptables -A FORWARD -o br0 -j ACCEPT
 ```
 
-Without this rule, we can reach the nodes from the host (SSH into them etc), but the nodes won't be able to reach the LAN or internet.
+Without these rules, it's possible to reach the nodes from the host (SSH into them etc), but the nodes won't be able to reach the LAN or internet.
 
-And to remove the rule after we're finished use the `-D` flag:
+And to remove the rules after we're finished use the `-D` flag:
 
 ```shell
-sudo iptables \
-	-t nat -D POSTROUTING ! -o br0 \
-	--source 10.0.0.0/24 -j MASQUERADE
+sudo iptables -t nat -D POSTROUTING ! -o br0 --source 10.0.0.0/24 -j MASQUERADE
+sudo iptables -D FORWARD -i br0 -j ACCEPT
+sudo iptables -D FORWARD -o br0 -j ACCEPT
 ```
 
 That's it! We're now ready to create our VMs and bootstrap the Kubernetes cluster.
