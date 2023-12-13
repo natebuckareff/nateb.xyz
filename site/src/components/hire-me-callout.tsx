@@ -1,16 +1,12 @@
 import { A } from 'solid-start';
-import { AlertCircleIcon } from '~/icons/alert-circle-icon';
 import CAIcon from '~/icons/ca-icon';
 
 export default function HireMeCallout(props: { class?: string }) {
-    const cls = `flex items-center gap-4 border border-sky-200 bg-sky-50 text-sky-900 dark:border-slate-500 dark:bg-slate-900 dark:text-white px-4 py-3 rounded-lg text-sm sm:text-base ${props.class}`;
     return (
-        <div class={cls}>
-            <div>
-                <AlertCircleIcon class="w-5 h-5" />
-            </div>
-
-            <div>
+        <div
+            class={`flex items-center gap-4 border-sky-200 bg-sky-50 dark:border-slate-500 dark:bg-slate-900 px-5 py-4 rounded-lg ${props.class}`}
+        >
+            <div class="leading-relaxed text-sky-900 dark:text-white text-sm sm:text-base">
                 I'm currently available for employment. Should you or your company be interested, please{' '}
                 <A class="x-link" href="/contact">
                     contact me
