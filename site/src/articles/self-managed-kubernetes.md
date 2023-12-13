@@ -5,7 +5,7 @@ published: 2023-09-21
 ---
 # Self-Managed Kubernetes
 
-> I've condensed this tutorial [into a single script](https://github.com/natebuckareff/self-managed-k8s).
+> All code for this article [available here](https://github.com/natebuckareff/self-managed-k8s).
 
 Have you ever wanted to run your own IaaS? Maybe you want to host your own projects with Kubernetes, but not pay for a managed service. Or maybe self-managed Kubernetes _is_ your project! For me, it was both, so I set out to learn how to run my own cluster on virtual private servers.
 
