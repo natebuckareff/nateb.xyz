@@ -22,7 +22,7 @@ export async function readAllArticles() {
             try {
                 const article = await readArticle(slug);
                 if (article !== undefined) {
-                    articles.push(article);
+                    articles.push({ ...article, html: '' });
                 }
             } catch (err) {
                 if (err instanceof ServerError && err.message === 'Failed to parse article') {
