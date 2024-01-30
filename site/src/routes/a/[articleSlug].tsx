@@ -2,7 +2,6 @@ import { Show } from 'solid-js';
 import { ErrorBoundary, RouteDataArgs, ServerError, Title, useRouteData } from 'solid-start';
 import { HttpHeader, HttpStatusCode, createServerData$ } from 'solid-start/server';
 import { readArticle } from '~/article';
-import HireMeCallout from '~/components/hire-me-callout';
 import SiteHeader from '~/components/site-header';
 import SiteLayout from '~/components/site-layout';
 
@@ -42,7 +41,7 @@ export default function ArticlePage() {
                     <article class="x-article">
                         <div innerHTML={getArticle()?.html ?? ''} />
 
-                        <HireMeCallout />
+                        {/* <HireMeCallout /> */}
 
                         <div>
                             <hr />

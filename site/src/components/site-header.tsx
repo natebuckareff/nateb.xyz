@@ -1,5 +1,4 @@
 import { A } from 'solid-start';
-import HireMeCallout from './hire-me-callout';
 import Link from './link';
 import ThemeControls from './theme-controls';
 
@@ -32,7 +31,7 @@ export default function SiteHeader(props: SiteHeaderProps) {
                 <ThemeControls class="ml-auto" />
             </header>
 
-            <HireMeCallout class="mt-8" />
+            {/* <HireMeCallout class="mt-8" /> */}
         </div>
     );
 }
