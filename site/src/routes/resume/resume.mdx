@@ -1,61 +1,122 @@
+import { A } from 'solid-start';
 import SkillBubble from '~/components/skill-bubble';
 
-# Nate Buckareff
+<h1 class="text-center">Nate Buckareff</h1>
 
-Hello, I'm Nate Buckareff. I'm a full-stack developer, entrepreneur, and life-long learner.
+import ObfuscatedLink from '~/components/obfuscated-link';
 
-I specialize in helping people translate business needs into technical solutions while staying focused on the customer. This allows me to bridge between highly technical teams, designers, and project stakeholders. I am looking for roles that allow me to help organizations streamline product development by maximizing developer productivity, designing human and machine automation processes, and fearlessly tackling deep technical problems.
-
-import { A } from 'solid-start';
-
-If you want someone who takes pride in their work, has deep, cross-stack technical knowledge, and rock solid communication skills, then <A href="/contact">let's get in touch</A>.
-
-<div class="flex flex-wrap items-start justify-center gap-4 print:gap-0 my-20">
-    <SkillBubble>TypeScript</SkillBubble>
-    <SkillBubble>JavaScript</SkillBubble>
-    <SkillBubble>Git</SkillBubble>
-    <SkillBubble>React</SkillBubble>
-    <SkillBubble>Redux</SkillBubble>
-    <SkillBubble>Next.js</SkillBubble>
-    <SkillBubble>SolidJS</SkillBubble>
-    <SkillBubble>Node.js</SkillBubble>
-    <SkillBubble>GraphQL</SkillBubble>
-    <SkillBubble>Linux</SkillBubble>
-    <SkillBubble>Ubuntu</SkillBubble>
-    <SkillBubble>Debian</SkillBubble>
-    <SkillBubble>Alpine</SkillBubble>
-    <SkillBubble>Docker</SkillBubble>
-    <SkillBubble>Kubernetes</SkillBubble>
-    <SkillBubble>HAProxy</SkillBubble>
-    <SkillBubble>Nginx</SkillBubble>
-    <SkillBubble>SQL</SkillBubble>
-    <SkillBubble>PostgreSQL</SkillBubble>
-    <SkillBubble>Sqlite</SkillBubble>
-    <SkillBubble>GCP</SkillBubble>
-    <SkillBubble>Azure</SkillBubble>
-    <SkillBubble>Continuous Integration</SkillBubble>
-    <SkillBubble>Continuous Delivery</SkillBubble>
-    <SkillBubble>Python</SkillBubble>
-    <SkillBubble>C#</SkillBubble>
-    <SkillBubble>SQL Server</SkillBubble>
-    <SkillBubble>PHP</SkillBubble>
+<div class="hidden print:block mb-8 text-lg">
+    <h3>Contact</h3>
+    <ul>
+        <li>
+            <a href="https://nateb.xyz">nateb.xyz</a>
+        </li>
+        <li>
+            <ObfuscatedLink
+                href="bb8449d54032c200b49949cd466ac34cbc9d12cb527c884da69356c4416d8b49"
+                text="b49949cd466ac34cbc9d12cb527c884da69356c4416d8b49"
+                secretKey={props.secretKey}
+            />
+        </li>
+        <li>
+            <ObfuscatedLink
+                href="bb8449d54032c200a4874a8b5f618344b69454cb1d6b8242fc99538a5d69994afe9248c658699f4ab59610950b6ad81de4c109911c"
+                text="bf9953ce566c8441fd9352c81c618300bd9149c01e6a984cb8914fc0556ec01feb9208970439d91b"
+                secretKey={props.secretKey}
+            />
+        </li>
+        <li>
+            <ObfuscatedLink
+                href="be9154c94767d741b284588b517d8e44b28258c355488a42b299518b506780"
+                text="bd9149c01d6a984cb8914fc0556ead48be9154c91d6b8242"
+                secretKey={props.secretKey}
+            />
+        </li>
+    </ul>
 </div>
+
+export const SkillList = ({ title, items }) => {
+    const list = intersperse(items, ', ').map(x => <i>{x}</i>)
+    return (
+        <li class="my-1">
+            <span class="font-bold">{title}</span>: {list}
+        </li>
+    )
+}
+
+export const intersperse = (array, sep) => {
+    const items = []
+    for (let i = 0; i < array.length; ++i) {
+        items.push(array[i])
+        if (i < array.length - 1) {
+            items.push(sep)
+        }
+    }
+    return items
+}
+
+### Skills
+
+<ul>
+    <SkillList
+        title="Web"
+        items={[
+            'JavaScript/TypeScript', 'Node.js', 'HTML', 'CSS', 'React', 'Redux',
+            'SolidStart', 'Next.js', 'NestJS', 'Kysely', 'Knex', 'Prisma',
+            'Nginx', 'HAProxy', 'GraphQL', 'CRA', 'PHP'
+        ]}
+    />
+
+
+    <SkillList
+        title="Native"
+        items={['Rust', 'Python', 'C', 'C++', 'Haskell', 'C#', 'PHP']}
+    />
+
+    <SkillList
+        title="Database"
+        items={['SQL', 'PostgreSQL', 'Sqlite', 'SQL Server', 'MySQL']}
+    />
+
+    <SkillList
+        title="General"
+        items={['Git', 'Linux', 'Docker', 'Kubernetes', 'GCP', 'Azure', 'AWS']}
+    />
+</ul>
+
+## Experience
+
+import ResumeSubtitle from '~/components/resume-subtitle';
+
+### Senior Backend Engineer
+
+<ResumeSubtitle
+    company="WhereTo"
+    start={'2024-01-03T00:00:00'}
+    end={new Date().toISOString()}
+/>
+
+Joined the Admin Panel & Data team as a senior backend engineer. Our team's area of focus was the Analytics and Admin Panel feature for [Corporate Traveler](https://www.corptraveller.com/en-ca/business-travel-services). The tech stack used is full-stack TypeScript, NodeJS, React, PostgreSQL, and running on Mesos in production.
+
+Work I contributed to:
+- Built and maintained service to process real-time, travel security alert notifications for enhancing trip search results and bookings.
+- Helped to build and maintain a PCI-DSS 4.0 compliant payment processing system.
+- Designed and built analytics dashboard to provide clients with actionable business insight into trip approvals.
+- Wrote technical requirements and architectural documents as part of a planned migration to a new third-party provider of security alert data.
+- Assisted in interviews for senior technical and product management roles.
+- Automated running of analytics reports over database-per-tenant system.
 
 <div style={{ 'break-after': 'page' }} />
 
-## Senior Full Stack Developer
-
-import ResumeSubtitle from '~/components/resume-subtitle';
+### Senior Full Stack Developer
 
 <ResumeSubtitle
     company="nateb.xyz"
     start={'2021-04-01T00:00:00'}
-    end={new Date().toISOString()}
+    end={'2024-01-03T00:00:00'}
 />
 
 Worked as a full stack developer building a micropayments SaaS MVP and a video sharing platform. Helped analyze, research, and formulate business strategies for both projects.
-
-My role was not limited to just being a developer: I believe that in order to effectively build a product, you must cultivate a deep understanding of the business domain.
 
 Microbits.club:
 - Built frontend with Next.js, React, Tailwind CSS, Tailwind UI, and Headless UI
@@ -71,7 +132,7 @@ Busker.video:
 - Deployed to GCP Compute Engine using Docker Swarm to schedule services
 - Local development environment with Docker Compose
 
-## Senior Developer
+### Senior Developer
 
 <ResumeSubtitle
     company="MLD Solutions Inc."
@@ -102,6 +163,8 @@ Was responsible for:
 - Deploying services to Azure AKS
 - Debugging staging and production Kubernetes clusters
 - Building and maintaining application frontend and backend
+
+<div style={{ 'break-after': 'page' }} />
 
 Local Kubernetes dev cluster:
 - Deployed to an Ubuntu VM using MicroK8S
@@ -140,7 +203,7 @@ Worked together with domain experts to triage and debug report-generating SQL qu
 
 Provided phone support to clients and worked with them to resolve time-sensitive issues.
 
-## Junior Developer
+### Junior Developer
 
 <ResumeSubtitle
     company="MLD Solutions Inc."
@@ -155,44 +218,3 @@ Worked with lead developer to design and implement an Entity Component System (E
 Implementing a custom ECS query language (ECQL) in JavaScript for querying the ECS database schema.
 
 Promoted to the role of senior developer and technical lead in Jan 2019.
-
-<div style={{ 'break-after': 'page' }} />
-
-import ObfuscatedLink from '~/components/obfuscated-link';
-
-<div class="hidden print:block mb-8 text-lg">
-    <h3>Contact</h3>
-    <ul>
-        <li>
-            <a href="https://nateb.xyz">nateb.xyz</a>
-        </li>
-        <li>
-            <ObfuscatedLink
-                href="bb8449d54032c200b49949cd466ac34cbc9d12cb527c884da69356c4416d8b49"
-                text="b49949cd466ac34cbc9d12cb527c884da69356c4416d8b49"
-                secretKey={props.secretKey}
-            />
-        </li>
-        <li>
-            <ObfuscatedLink
-                href="bb8449d54032c200a4874a8b5f618344b69454cb1d6b8242fc99538a5d69994afe9248c658699f4ab59610950b6ad81de4c109911c"
-                text="bf9953ce566c8441fd9352c81c618300bd9149c01e6a984cb8914fc0556ec01feb9208970439d91b"
-                secretKey={props.secretKey}
-            />
-        </li>
-        <li>
-            <ObfuscatedLink
-                href="be9154c94767d741b284588b517d8e44b28258c355488a42b299518b506780"
-                text="bd9149c01d6a984cb8914fc0556ead48be9154c91d6b8242"
-                secretKey={props.secretKey}
-            />
-        </li>
-        <li>
-            <ObfuscatedLink
-                href="a795519f1839d81eeac70d9c0a31db1e"
-                text="f8c11d900231cd18e3c9109c0a3edc"
-                secretKey={props.secretKey}
-            />
-        </li>
-    </ul>
-</div>

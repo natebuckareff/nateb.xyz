@@ -18,7 +18,7 @@ export default function ResumePage() {
             <SiteLayout classFooter="print:hidden">
                 <SiteHeader class="print:hidden" />
 
-                <div class="mt-8">
+                <div class="mt-8 print:hidden">
                     <a href="/resume.pdf" class="x-link text-lg">
                         Download PDF
                     </a>
@@ -26,7 +26,7 @@ export default function ResumePage() {
 
                 <div class="x-article my-8">
                     <Resume secretKey={CONTACT_SECRET_KEY} />
-                    <a href="/resume.pdf" class="x-link">
+                    <a href="/resume.pdf" class="x-link print:hidden">
                         Download PDF
                     </a>
                 </div>

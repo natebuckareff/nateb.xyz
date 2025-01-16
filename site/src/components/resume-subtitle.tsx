@@ -12,7 +12,14 @@ export default function ResumeSubtitle(props: ResumeSubtitleProps) {
         const difference = differenceInMonths(new Date(props.end), new Date(props.start));
         const months = difference % 12;
         const years = Math.floor(difference / 12);
-        return `${years} year${years > 1 ? 's' : ''}, ${months} month${months > 1 ? 's' : ''}`;
+        const parts: string[] = [];
+        if (years > 0) {
+            parts.push(`${years} year${years > 1 ? 's' : ''}`);
+        }
+        if (months > 0) {
+            parts.push(`${months} month${months > 1 ? 's' : ''}`);
+        }
+        return parts.join(', ');
     };
 
     const getDate = (date: string) => {
