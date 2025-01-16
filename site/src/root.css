@@ -175,7 +175,7 @@ html.dark .x-article {
     @apply mx-auto;
 }
 @media not print {
-    html.dark .x-article img {
+    html.dark .x-article img:not(.no-invert) {
         @apply invert;
     }
 }

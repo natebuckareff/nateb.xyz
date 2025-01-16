@@ -2,6 +2,7 @@ import differenceInMonths from 'date-fns/differenceInMonths';
 import format from 'date-fns/format';
 
 export interface ResumeSubtitleProps {
+    image?: string;
     company: string;
     start: string;
     end: string;
@@ -34,7 +35,10 @@ export default function ResumeSubtitle(props: ResumeSubtitleProps) {
 
     return (
         <div class="flex flex-col gap-2 text-slate-500">
-            <div class="font-bold">{props.company}</div>
+            <div class="flex flex-row items-center font-bold">
+                {props.image && <img class="inline no-invert h-5 pr-1.5" src={props.image} />}
+                <div class="grow">{props.company}</div>
+            </div>
             <div class="flex justify-between">
                 <div>{getDuration()}</div>
                 <div>
