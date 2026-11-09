@@ -33,7 +33,7 @@
         "better-sqlite3": "^13.0.3",
         "date-fns": "^4.4.0",
         "marked": "^9.1.6",
-        "node-html-parser": "^6.1.13",
+        "node-html-parser": "^9.0.6",
         "solid-js": "^1.9.18",
         "solid-start": "^0.3.11",
         "yaml": "^2.9.1"

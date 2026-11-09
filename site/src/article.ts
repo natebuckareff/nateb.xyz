@@ -201,7 +201,7 @@ function extractArticleSummaryAndTitle(html: string, maxWordCount: number) {
     const summary: string[] = [];
     let wordCount = 0;
     for (const p of elems) {
-        if (p.parentNode.tagName === null) {
+        if (!p.parentNode?.tagName) {
             const text = p.textContent;
             const words = extractWords(text);
             wordCount += words.length;
