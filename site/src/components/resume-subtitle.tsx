@@ -1,5 +1,5 @@
-import differenceInMonths from 'date-fns/differenceInMonths';
-import format from 'date-fns/format';
+import { differenceInMonths } from 'date-fns/differenceInMonths';
+import { format } from 'date-fns/format';
 
 export interface ResumeSubtitleProps {
     image?: string;
