@@ -14,14 +14,14 @@
     },
     "devDependencies": {
         "@mdx-js/rollup": "^3.1.1",
+        "@tailwindcss/postcss": "^4.3.4",
         "@types/better-sqlite3": "^7.6.13",
         "@vercel/ncc": "^0.45.0",
-        "autoprefixer": "^10.6.2",
         "postcss": "^8.5.32",
         "rollup-plugin-visualizer": "^7.1.1",
         "solid-jsx": "^1.1.4",
         "solid-start-node": "^0.3.11",
-        "tailwindcss": "^3.4.19",
+        "tailwindcss": "^4.3.4",
         "typescript": "^7.0.2",
         "user-agent-data-types": "^0.4.3",
         "vite": "^4.5.14"

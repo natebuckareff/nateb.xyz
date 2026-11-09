@@ -27,7 +27,7 @@ export default function HomePage() {
                     <For each={getArticleList() ?? []}>
                         {article => (
                             <A
-                                class="block border border-transparent dark:hover:border-slate-700 hover:border-slate-300 rounded-md shadow-sm hover:shadow-slate-200 dark:hover:shadow-slate-700"
+                                class="block border border-transparent dark:hover:border-slate-700 hover:border-slate-300 rounded-md shadow-xs hover:shadow-slate-200 dark:hover:shadow-slate-700"
                                 href={`/a/${article.slug}`}
                             >
                                 <article class="x-article x-article-card">
