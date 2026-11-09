@@ -1,6 +1,7 @@
 {
     "name": "site",
     "type": "module",
+    "packageManager": "pnpm@12.17.0",
     "engines": {
         "node": "24"
     },

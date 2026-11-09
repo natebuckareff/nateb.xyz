@@ -1,0 +1,7 @@
+# Install scripts are blocked unless listed here as true
+allowBuilds:
+  better-sqlite3: true
+  esbuild: false
+
+# Refuse package versions published less than 7 days ago (in minutes)
+minimumReleaseAge: 10080
