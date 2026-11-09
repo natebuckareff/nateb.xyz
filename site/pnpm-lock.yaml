@@ -176,8 +176,8 @@ importers:
         specifier: ^0.8.4
         version: 0.8.4(solid-js@1.9.18)
       '@types/node':
-        specifier: ^20.19.43
-        version: 20.19.43
+        specifier: ^24.19.2
+        version: 24.19.2
       better-sqlite3:
         specifier: ^13.0.3
         version: 13.0.3
@@ -195,7 +195,7 @@ importers:
         version: 1.9.18
       solid-start:
         specifier: ^0.3.11
-        version: 0.3.11(@solidjs/meta@0.29.4(solid-js@1.9.18))(@solidjs/router@0.8.4(solid-js@1.9.18))(solid-js@1.9.18)(solid-start-node@0.3.11)(vite@4.5.14(@types/node@20.19.43)(terser@5.51.2))
+        version: 0.3.11(@solidjs/meta@0.29.4(solid-js@1.9.18))(@solidjs/router@0.8.4(solid-js@1.9.18))(solid-js@1.9.18)(solid-start-node@0.3.11)(vite@4.5.14(@types/node@24.19.2)(terser@5.51.2))
       yaml:
         specifier: ^2.9.1
         version: 2.9.1
@@ -229,7 +229,7 @@ importers:
         version: 1.1.4(solid-js@1.9.18)
       solid-start-node:
         specifier: ^0.3.11
-        version: 0.3.11(solid-start@0.3.11)(vite@4.5.14(@types/node@20.19.43)(terser@5.51.2))
+        version: 0.3.11(solid-start@0.3.11)(vite@4.5.14(@types/node@24.19.2)(terser@5.51.2))
       tailwindcss:
         specifier: ^3.4.19
         version: 3.4.19(yaml@2.9.1)
@@ -241,7 +241,7 @@ importers:
         version: 0.4.3
       vite:
         specifier: ^4.5.14
-        version: 4.5.14(@types/node@20.19.43)(terser@5.51.2)
+        version: 4.5.14(@types/node@24.19.2)(terser@5.51.2)
 
 packages:
 
@@ -1187,8 +1187,8 @@ packages:
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
 
-  '@types/node@20.19.43':
-    resolution: {integrity: sha512-6oYBAi5ikg4Pl+kGsoYtawUMBT2zZMCvPNF7pVLnHZfd1zf38DRiWn/gT01RYCdUqkv7Fhr+C9ot4/tb+2sVvA==}
+  '@types/node@24.19.2':
+    resolution: {integrity: sha512-93d49wCWJkCyN87MxLpNN6KXPCwFw7bVUg79mGUV1OS40JGWwVCr8n61DXCSqz7CV6/VfPkb7xec7uP2M+QHWQ==}
 
   '@types/resolve@1.20.2':
     resolution: {integrity: sha512-60BCwRFOZCQhDncwQdxxeOEEkbc5dIMccYLwbxsS4TUNeVECQ/pBJ0j09mrHOl/JJvpRPGwO9SvE4nR2Nb/a4Q==}
@@ -2503,8 +2503,8 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  undici-types@6.21.0:
-    resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
+  undici-types@7.24.6:
+    resolution: {integrity: sha512-WRNW+sJgj5OBN4/0JpHFqtqzhpbnV0GuB+OozA9gCL7a993SmU+1JBZCzLNxYsbMfIeDL+lTsphD5jN5N+n0zg==}
 
   undici@6.29.1:
     resolution: {integrity: sha512-EvRlUt/QqAEvXdQeRMYUfwOQsfzpDztykrG2owGEE/rBOBoYv9uF39ZzsNDh4lTFHhTr2XOZjKkYgueD12ZmGA==}
@@ -3685,7 +3685,7 @@ snapshots:
 
   '@types/better-sqlite3@7.6.13':
     dependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.19.2
 
   '@types/cookie@0.5.4': {}
 
@@ -3711,9 +3711,9 @@ snapshots:
 
   '@types/ms@2.1.0': {}
 
-  '@types/node@20.19.43':
+  '@types/node@24.19.2':
     dependencies:
-      undici-types: 6.21.0
+      undici-types: 7.24.6
 
   '@types/resolve@1.20.2': {}
 
@@ -5095,7 +5095,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  solid-start-node@0.3.11(solid-start@0.3.11)(vite@4.5.14(@types/node@20.19.43)(terser@5.51.2)):
+  solid-start-node@0.3.11(solid-start@0.3.11)(vite@4.5.14(@types/node@24.19.2)(terser@5.51.2)):
     dependencies:
       '@rollup/plugin-commonjs': 24.1.0(rollup@3.30.0)
       '@rollup/plugin-json': 6.1.0(rollup@3.30.0)
@@ -5104,13 +5104,13 @@ snapshots:
       polka: 1.0.0-next.22
       rollup: 3.30.0
       sirv: 2.0.4
-      solid-start: 0.3.11(@solidjs/meta@0.29.4(solid-js@1.9.18))(@solidjs/router@0.8.4(solid-js@1.9.18))(solid-js@1.9.18)(solid-start-node@0.3.11)(vite@4.5.14(@types/node@20.19.43)(terser@5.51.2))
+      solid-start: 0.3.11(@solidjs/meta@0.29.4(solid-js@1.9.18))(@solidjs/router@0.8.4(solid-js@1.9.18))(solid-js@1.9.18)(solid-start-node@0.3.11)(vite@4.5.14(@types/node@24.19.2)(terser@5.51.2))
       terser: 5.51.2
-      vite: 4.5.14(@types/node@20.19.43)(terser@5.51.2)
+      vite: 4.5.14(@types/node@24.19.2)(terser@5.51.2)
     transitivePeerDependencies:
       - supports-color
 
-  solid-start@0.3.11(@solidjs/meta@0.29.4(solid-js@1.9.18))(@solidjs/router@0.8.4(solid-js@1.9.18))(solid-js@1.9.18)(solid-start-node@0.3.11)(vite@4.5.14(@types/node@20.19.43)(terser@5.51.2)):
+  solid-start@0.3.11(@solidjs/meta@0.29.4(solid-js@1.9.18))(@solidjs/router@0.8.4(solid-js@1.9.18))(solid-js@1.9.18)(solid-start-node@0.3.11)(vite@4.5.14(@types/node@24.19.2)(terser@5.51.2)):
     dependencies:
       '@babel/core': 7.29.7
       '@babel/generator': 7.29.12
@@ -5145,12 +5145,12 @@ snapshots:
       solid-js: 1.9.18
       terser: 5.51.2
       undici: 6.29.1
-      vite: 4.5.14(@types/node@20.19.43)(terser@5.51.2)
-      vite-plugin-inspect: 0.7.42(rollup@3.30.0)(vite@4.5.14(@types/node@20.19.43)(terser@5.51.2))
-      vite-plugin-solid: 2.11.15(solid-js@1.9.18)(vite@4.5.14(@types/node@20.19.43)(terser@5.51.2))
+      vite: 4.5.14(@types/node@24.19.2)(terser@5.51.2)
+      vite-plugin-inspect: 0.7.42(rollup@3.30.0)(vite@4.5.14(@types/node@24.19.2)(terser@5.51.2))
+      vite-plugin-solid: 2.11.15(solid-js@1.9.18)(vite@4.5.14(@types/node@24.19.2)(terser@5.51.2))
       wait-on: 6.0.1(debug@4.4.3)
     optionalDependencies:
-      solid-start-node: 0.3.11(solid-start@0.3.11)(vite@4.5.14(@types/node@20.19.43)(terser@5.51.2))
+      solid-start-node: 0.3.11(solid-start@0.3.11)(vite@4.5.14(@types/node@24.19.2)(terser@5.51.2))
     transitivePeerDependencies:
       - '@nuxt/kit'
       - '@testing-library/jest-dom'
@@ -5285,7 +5285,7 @@ snapshots:
 
   typescript@5.9.3: {}
 
-  undici-types@6.21.0: {}
+  undici-types@7.24.6: {}
 
   undici@6.29.1: {}
 
@@ -5367,7 +5367,7 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
-  vite-plugin-inspect@0.7.42(rollup@3.30.0)(vite@4.5.14(@types/node@20.19.43)(terser@5.51.2)):
+  vite-plugin-inspect@0.7.42(rollup@3.30.0)(vite@4.5.14(@types/node@24.19.2)(terser@5.51.2)):
     dependencies:
       '@antfu/utils': 0.7.10
       '@rollup/pluginutils': 5.5.1(rollup@3.30.0)
@@ -5377,12 +5377,12 @@ snapshots:
       open: 9.1.0
       picocolors: 1.1.1
       sirv: 2.0.4
-      vite: 4.5.14(@types/node@20.19.43)(terser@5.51.2)
+      vite: 4.5.14(@types/node@24.19.2)(terser@5.51.2)
     transitivePeerDependencies:
       - rollup
       - supports-color
 
-  vite-plugin-solid@2.11.15(solid-js@1.9.18)(vite@4.5.14(@types/node@20.19.43)(terser@5.51.2)):
+  vite-plugin-solid@2.11.15(solid-js@1.9.18)(vite@4.5.14(@types/node@24.19.2)(terser@5.51.2)):
     dependencies:
       '@babel/core': 7.29.7
       '@types/babel__core': 7.20.5
@@ -5390,24 +5390,24 @@ snapshots:
       merge-anything: 5.1.7
       solid-js: 1.9.18
       solid-refresh: 0.6.3(solid-js@1.9.18)
-      vite: 4.5.14(@types/node@20.19.43)(terser@5.51.2)
-      vitefu: 1.1.3(vite@4.5.14(@types/node@20.19.43)(terser@5.51.2))
+      vite: 4.5.14(@types/node@24.19.2)(terser@5.51.2)
+      vitefu: 1.1.3(vite@4.5.14(@types/node@24.19.2)(terser@5.51.2))
     transitivePeerDependencies:
       - supports-color
 
-  vite@4.5.14(@types/node@20.19.43)(terser@5.51.2):
+  vite@4.5.14(@types/node@24.19.2)(terser@5.51.2):
     dependencies:
       esbuild: 0.18.20
       postcss: 8.5.32
       rollup: 3.30.0
     optionalDependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.19.2
       fsevents: 2.3.3
       terser: 5.51.2
 
-  vitefu@1.1.3(vite@4.5.14(@types/node@20.19.43)(terser@5.51.2)):
+  vitefu@1.1.3(vite@4.5.14(@types/node@24.19.2)(terser@5.51.2)):
     optionalDependencies:
-      vite: 4.5.14(@types/node@20.19.43)(terser@5.51.2)
+      vite: 4.5.14(@types/node@24.19.2)(terser@5.51.2)
 
   wait-on@6.0.1(debug@4.4.3):
     dependencies:
