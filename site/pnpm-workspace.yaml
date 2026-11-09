@@ -5,3 +5,8 @@ allowBuilds:
 
 # Refuse package versions published less than 7 days ago (in minutes)
 minimumReleaseAge: 10080
+
+# Force patched versions of vulnerable transitive dependencies
+overrides:
+  # solid-start 0.3 pins undici 5 but only imports File from it
+  undici: 6.29.1
