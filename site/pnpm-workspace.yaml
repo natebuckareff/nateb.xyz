@@ -10,3 +10,5 @@ minimumReleaseAge: 10080
 overrides:
   # solid-start 0.3 pins undici 5 but only imports File from it
   undici: 6.29.1
+  # wait-on (solid-start dev server) pins axios 0.25
+  axios: ^0.34.0
