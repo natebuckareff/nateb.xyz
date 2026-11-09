@@ -1,6 +1,6 @@
 services:
   caddy_proxy:
-    image: lucaslorentz/caddy-docker-proxy:2.8-alpine
+    image: lucaslorentz/caddy-docker-proxy:2.13-alpine
     ports:
       - target: 80
         published: 80
@@ -18,18 +18,16 @@ services:
     restart: unless-stopped
 
   site:
-    image: ${REGISTRY}/${REGISTRY_USERNAME}/${COMPOSE_PROJECT_NAME}-site:${BUILD_ID}
+    image: ${COMPOSE_PROJECT_NAME}-site:latest
     build:
       context: ./site
       dockerfile: dockerfile.prod
       args:
-        - ENV=production
         - PNPM_VERSION
-        - NODE_MAJOR
-        - NODE_MINOR
+        - NODE_VERSION
         - VITE_DOMAIN
     environment:
-      - ENV=development
+      - ENV=production
       - VITE_DOMAIN
       - SITE_SQLITE_FILE
     networks:
@@ -40,6 +38,7 @@ services:
     labels:
       caddy: ${VITE_DOMAIN}
       caddy.reverse_proxy: '{{upstreams 3000}}'
+    restart: unless-stopped
 
 networks:
   caddy_ingress:

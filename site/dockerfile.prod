@@ -1,7 +1,7 @@
-ARG NODE_MAJOR
-ARG NODE_MINOR
+ARG NODE_VERSION
 
-FROM node:${NODE_MAJOR}.${NODE_MINOR}-bookworm-slim as base
+FROM node:${NODE_VERSION}-bookworm-slim as base
+RUN apt-get update && apt-get install -y --no-install-recommends python3 make g++
 ARG PNPM_VERSION
 RUN npm install --location=global pnpm@${PNPM_VERSION}
 
@@ -20,12 +20,12 @@ RUN pnpm run copy-assets
 FROM base as external
 WORKDIR /app/site
 RUN echo '{ "type": "module" }' > package.json
-RUN pnpm install better-sqlite3
+RUN pnpm install better-sqlite3@13.0.3
 
-FROM node:${NODE_MAJOR}.${NODE_MINOR}-bookworm-slim
-RUN rm -r /opt/yarn-*
-RUN rm -r /root/.npm
-RUN rm -r /tmp/*
+FROM node:${NODE_VERSION}-bookworm-slim
+RUN rm -rf /opt/yarn-*
+RUN rm -rf /root/.npm
+RUN rm -rf /tmp/*
 COPY --from=external /app/site/node_modules node_modules
 COPY --from=builder /app/site/bundle bundle
 ENTRYPOINT ["node", "bundle/index.js"]
