@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-docker compose down
+docker compose -f "$PROJECT_PATH/docker-compose.dev.yml" down

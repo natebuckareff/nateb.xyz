@@ -1,3 +1,7 @@
+name: natebxyz
+
+x-domain: &domain nateb.xyz
+
 services:
   caddy_proxy:
     image: lucaslorentz/caddy-docker-proxy:2.13-alpine
@@ -9,7 +13,7 @@ services:
         published: 443
         protocol: tcp
     environment:
-      CADDY_INGRESS_NETWORKS: ${COMPOSE_PROJECT_NAME}_caddy_ingress
+      CADDY_INGRESS_NETWORKS: natebxyz_caddy_ingress
     networks:
       - caddy_ingress
     volumes:
@@ -18,25 +22,25 @@ services:
     restart: unless-stopped
 
   site:
-    image: ${COMPOSE_PROJECT_NAME}-site:latest
+    # IMAGE_TAG is set by scripts/,deploy.sh to the commit being deployed
+    image: natebxyz-site:${IMAGE_TAG:-latest}
     build:
       context: ./site
       dockerfile: dockerfile.prod
       args:
-        - PNPM_VERSION
-        - NODE_VERSION
-        - VITE_DOMAIN
+        NODE_VERSION: '24'
+        PNPM_VERSION: 12.17.0
+        VITE_DOMAIN: *domain
     environment:
-      - ENV=production
-      - VITE_DOMAIN
-      - SITE_SQLITE_FILE
+      ENV: production
+      SITE_SQLITE_FILE: /data/natebxyz.sqlite
     networks:
       - default
       - caddy_ingress
     volumes:
       - site_data:/data
     labels:
-      caddy: ${VITE_DOMAIN}
+      caddy: *domain
       caddy.reverse_proxy: '{{upstreams 3000}}'
     restart: unless-stopped
 

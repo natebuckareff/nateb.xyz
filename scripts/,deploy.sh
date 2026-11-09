@@ -2,47 +2,32 @@
 
 set -euo pipefail
 
-set +a
-source "$PROJECT_PATH/.env.prod"
-set -a
+# Build the site image locally, ship it to the server over SSH and start it
+# there. The server holds nothing but Docker state: compose runs here and
+# talks to the server's Docker daemon over SSH.
 
-# Generate new build ID, waiting one second to avoid duplicates
-sleep 1
-export REGISTRY
-export REGISTRY_USERNAME
-export BUILD_ID="$(date +"%Y-%m-%d-%s%3N")"
+DEPLOY_HOST="${DEPLOY_HOST:-nate@100.105.96.18}"
+PROJECT_PATH="${PROJECT_PATH:-$(git rev-parse --show-toplevel)}"
+COMPOSE_FILE="$PROJECT_PATH/docker-compose.prod.yml"
 
-# Build images
-docker compose build
+cd "$PROJECT_PATH"
 
-# Login to registry
-echo "$REGISTRY_PASSWORD_RW" \
-    | docker login "$REGISTRY" -u "$REGISTRY_USERNAME" --password-stdin
+# Only deploy committed code
+if [ -n "$(git status --porcelain)" ]; then
+    echo "deploy: working tree has uncommitted changes" >&2
+    exit 1
+fi
 
-# Push to registry and logout
-docker compose push
-docker logout "$REGISTRY"
+export IMAGE_TAG="$(git rev-parse --short HEAD)"
+IMAGE="natebxyz-site:$IMAGE_TAG"
 
-DEPLOY_FILE="deploy/docker-compose.$BUILD_ID.yml"
+# Build images locally
+docker compose -f "$COMPOSE_FILE" build site
 
-# Setup deployment directory
-ssh "$SSH_HOST" "mkdir -p deploy"
+# Ship the image to the server
+docker save "$IMAGE" | gzip -1 | ssh "$DEPLOY_HOST" "gunzip | docker load"
 
-# Upload docker compose config with "services[].build" section removed
-docker compose config \
-    | yq '.services[] |= del(.build)' \
-    | ssh "$SSH_HOST" "cat > $DEPLOY_FILE"
+# Start services on the server
+DOCKER_HOST="ssh://$DEPLOY_HOST" docker compose -f "$COMPOSE_FILE" up -d --no-build
 
-# Update link to config
-ssh "$SSH_HOST" "rm -f docker-compose.yml"
-ssh "$SSH_HOST" "ln -s $DEPLOY_FILE docker-compose.yml"
-
-# Login to registry on server and stay logged in so images may be pulled
-# whenever necessary
-ssh "$SSH_HOST" "
-    echo $REGISTRY_PASSWORD_RO \
-        | docker login $REGISTRY -u $REGISTRY_USERNAME --password-stdin
-"
-
-# Upload services
-ssh "$SSH_HOST" "docker compose up -d"
+echo "deployed $IMAGE"

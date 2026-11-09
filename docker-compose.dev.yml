@@ -1,3 +1,7 @@
+name: natebxyz
+
+x-domain: &domain nateb.localhost
+
 services:
   caddy_proxy:
     image: lucaslorentz/caddy-docker-proxy:2.13-alpine
@@ -9,7 +13,7 @@ services:
         published: 443
         protocol: tcp
     environment:
-      CADDY_INGRESS_NETWORKS: ${COMPOSE_PROJECT_NAME}_caddy_ingress
+      CADDY_INGRESS_NETWORKS: natebxyz_caddy_ingress
     networks:
       - caddy_ingress
     volumes:
@@ -18,20 +22,20 @@ services:
     restart: unless-stopped
 
   site:
-    image: node:${NODE_VERSION}-bookworm-slim
+    image: node:24-bookworm-slim
     working_dir: /app/site
     command: ['npm', 'run', 'dev']
     environment:
-      - ENV=development
-      - VITE_DOMAIN
-      - SITE_SQLITE_FILE
+      ENV: development
+      VITE_DOMAIN: *domain
+      SITE_SQLITE_FILE: /app/site/.data/natebxyz.db
     networks:
       - default
       - caddy_ingress
     volumes:
       - .:/app
     labels:
-      caddy: ${VITE_DOMAIN}
+      caddy: *domain
       caddy.reverse_proxy: '{{upstreams 80}}'
 
 networks:
