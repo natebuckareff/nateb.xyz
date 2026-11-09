@@ -32,7 +32,7 @@
         "@types/node": "^24.19.2",
         "better-sqlite3": "^13.0.3",
         "date-fns": "^4.4.0",
-        "marked": "^9.1.6",
+        "marked": "^18.1.3",
         "node-html-parser": "^9.0.6",
         "solid-js": "^1.9.18",
         "solid-start": "^0.3.11",

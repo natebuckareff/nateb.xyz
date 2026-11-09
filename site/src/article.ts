@@ -1,4 +1,4 @@
-import { marked } from 'marked';
+import { Marked } from 'marked';
 import { parse } from 'node-html-parser';
 import { readFile, readdir, stat } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
@@ -105,27 +105,18 @@ function parseArticle(slug: string, modified: Date, text: string): Article {
             published = new Date(meta.published);
         }
 
-        let enabledHeadingRenderer = false;
-
-        marked.use({
+        const marked = new Marked({
             renderer: {
-                heading(text, level) {
-                    if (!enabledHeadingRenderer) {
-                        return `<h${level}>${text}</h${level}>`;
-                    }
+                heading({ tokens, depth }) {
+                    const text = this.parser.parseInline(tokens);
                     const name = getEscapedTitle(text);
                     let after = '';
-                    if (level === 1) {
+                    if (depth === 1) {
                         after = renderToString(() => ArticleSubtitle({ readtime: readingtime, published }));
                     }
-                    return `<h${level}><a name="${name}" href="#${name}">${text}</a></h${level}>${after}`;
+                    return `<h${depth}><a name="${name}" href="#${name}">${text}</a></h${depth}>${after}`;
                 },
             },
-        });
-
-        enabledHeadingRenderer = true;
-
-        const html = marked(content, {
             hooks: {
                 preprocess(markdown) {
                     const wpm = 225;
@@ -172,7 +163,7 @@ function parseArticle(slug: string, modified: Date, text: string): Article {
             },
         });
 
-        enabledHeadingRenderer = false;
+        const html = marked.parse(content, { async: false });
 
         return {
             slug,
